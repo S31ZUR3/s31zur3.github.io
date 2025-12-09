@@ -129,22 +129,8 @@
             <div id="ctfs" class="section">
                 <div class="prompt">ls competitions/</div>
                 <h2>competition history</h2>
-                <!-- Static content kept for history not in writeups data -->
-                <div class="ctf-item">
-                    <div class="ctf-name">VUWCTF 2025</div>
-                    <div class="ctf-desc">University-level competition with emphasis on practical security challenges.</div>
-                    <div class="ctf-rank">rank: 26th place</div>
-                </div>
-                <div class="ctf-item">
-                    <div class="ctf-name">Null CTF 2025</div>
-                    <div class="ctf-desc">Community-driven CTF with focus on real-world security scenarios.</div>
-                    <div class="ctf-rank">rank: 62nd place</div>
-                </div>
-                <!-- ... other static items ... -->
-                 <div class="ctf-item">
-                    <div class="ctf-name">BackdoorCTF 2025</div>
-                    <div class="ctf-desc">Advanced competition featuring challenging pwn and reverse engineering problems.</div>
-                    <div class="ctf-rank">rank: 79th place</div>
+                <div id="ctfs-list">
+                    <!-- Dynamic Content -->
                 </div>
                 <div class="back-button" onclick="navigateTo('')">back to main menu</div>
             </div>
@@ -221,8 +207,13 @@
             } else if (view === 'challenge') {
                 document.getElementById('challenge-detail').classList.add('active');
                 renderChallengeDetail(parts[1], parts[2]);
+            } else if (view === 'about') {
+                document.getElementById('about').classList.add('active');
+            } else if (view === 'ctfs') {
+                document.getElementById('ctfs').classList.add('active');
+                renderCompetitions();
             } else if (document.getElementById(view)) {
-                // Fallback for static sections like 'about', 'contact'
+                // Fallback for static sections like 'contact'
                 document.getElementById(view).classList.add('active');
             } else {
                 // Default to main menu
@@ -254,19 +245,10 @@
                 div.className = 'post-item';
                 div.onclick = () => hasWriteups ? navigateTo('ctf', ctfName) : alert('No writeups uploaded for this CTF yet.');
                 
-                let tagsHtml = '';
-                // Gather unique tags from challenges if available
-                if (hasWriteups) {
-                    const allTags = new Set();
-                    ctf.challenges.forEach(ch => ch.tags.forEach(t => allTags.add(t)));
-                    tagsHtml = `<div class="post-tags">${Array.from(allTags).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
-                }
-
                 div.innerHTML = `
                     <div class="post-date">[2025] ${ctf.rank}</div>
                     <div class="post-title">${ctfName} ${hasWriteups ? '' : '(No Writeups)'}</div>
                     <div class="post-excerpt">${ctf.description}</div>
-                    ${tagsHtml}
                 `;
                 list.appendChild(div);
             });
@@ -274,6 +256,23 @@
 
         function filterWriteups() {
             renderWriteups();
+        }
+
+        function renderCompetitions() {
+            const list = document.getElementById('ctfs-list');
+            list.innerHTML = '';
+
+            Object.keys(ctfData).forEach(ctfName => {
+                const ctf = ctfData[ctfName];
+                const div = document.createElement('div');
+                div.className = 'ctf-item';
+                div.innerHTML = `
+                    <div class="ctf-name">${ctfName}</div>
+                    <div class="ctf-desc">${ctf.description}</div>
+                    <div class="ctf-rank">${ctf.rank}</div>
+                `;
+                list.appendChild(div);
+            });
         }
 
         function renderCtfDetail(ctfName) {

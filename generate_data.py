@@ -2,6 +2,14 @@ import os
 import json
 import re
 
+# Mapping folder names to Data Keys in the JSON
+FOLDER_MAP = {
+    "BackdoorCTF": "BackdoorCTF 2025",
+    "PatriotCTF": "PatriotCTF 2025",
+    "VuwCTF": "VUWCTF 2025"
+}
+
+# Fallback for manual overrides if first line is missing/empty
 MANUAL_CATEGORIES = {
     'bolt fast': 'Cryptography',
     'ambystoma mexicanum': 'Cryptography',
@@ -22,34 +30,27 @@ MANUAL_CATEGORIES = {
 def parse_markdown(text):
     html = text
     
-    # 1. Escape HTML first (except where we want to keep structure)
-    # Actually, for simple MD, we usually trust the input or escape only specific parts.
-    # But since we are generating HTML, we should be careful. 
-    # Let's simple-replace key headers and blocks.
-    
     # Headers
     html = re.sub(r'^### (.*)$', r'<h4>\1</h4>', html, flags=re.MULTILINE)
     html = re.sub(r'^## (.*)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
     html = re.sub(r'^# (.*)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
     
-    # Code blocks (handle indentation and newlines)
+    # Code blocks
     def code_block_repl(match):
         lang = match.group(1) if match.group(1) else ''
         code = match.group(2)
-        # escape HTML in code
         code = code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         return f'<pre><code class="{lang}">{code}</code></pre>'
     
-    # Use non-greedy match including newlines
     html = re.sub(r'```(\w*)\n(.*?)```', code_block_repl, html, flags=re.DOTALL)
     
     # Inline code
     html = re.sub(r'`([^`]+)`', r'<code>\1</code>', html)
     
-    # Images: ![alt](src) -> <img src="src" alt="alt">
+    # Images
     html = re.sub(r'!\s*\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1" style="max-width:100%;">', html)
     
-    # Links: [text](url) -> <a href="url">text</a>
+    # Links
     html = re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2" target="_blank">\1</a>', html)
 
     # Bold
@@ -67,11 +68,8 @@ def parse_markdown(text):
             content = line.strip()[2:]
             new_lines.append(f'<li>{content}</li>')
         elif in_list:
-            # If empty line or not a list item, close list
             if not line.strip():
-                pass # ignore empty lines inside list context mostly, or close?
-                     # Standard MD: empty line breaks list? 
-                     # Let's assume non-list line breaks list
+                pass
             else:
                  new_lines.append('</ul>')
                  in_list = False
@@ -84,71 +82,63 @@ def parse_markdown(text):
     html = '\n'.join(new_lines)
     
     # Paragraphs
-    # Split by double newlines to form paragraphs, but ignore block elements
     blocks = re.split(r'\n\s*\n', html)
     final_html = ""
     for block in blocks:
         block = block.strip()
         if not block: continue
         
-        # Check if block is already wrapped or is a header/pre/ul
         if re.match(r'<(h\d|ul|pre|div|table)', block):
             final_html += block + "\n"
         else:
-            # Preserve single line breaks within paragraphs as <br>
-            # block_with_br = block.replace('\n', '<br>')
-            # final_html += f'<p>{block_with_br}</p>\n'
-            # Actually, standard MD ignores single newlines. But for writeups, people often like them preserved.
-            # Let's strictly follow "Paragraphs are separated by empty lines".
             final_html += f'<p>{block}</p>\n'
             
     return final_html
 
-def infer_category_tags(title, text):
-    title_lower = title.lower()
-    
-    # Check Manual Overrides first (exact match or partial)
-    for key, val in MANUAL_CATEGORIES.items():
-        if key in title_lower:
-             # We still want tags, so we'll infer them, but return the manual category
-             _, tags = get_inferred_data(text)
-             # Add the category name to tags if not present
-             cat_slug = val.split(' ')[0].lower()
-             if cat_slug not in tags: tags.append(cat_slug)
-             return val, tags
-
-    return get_inferred_data(text)
-
-def get_inferred_data(text):
+def get_inferred_tags(text):
     text_lower = text.lower()
     categories = {
-        'Cryptography': ['crypto', 'aes', 'rsa', 'cipher', 'xor', 'encoding'],
-        'Web Exploitation': ['web', 'http', 'flask', 'cookie', 'xss', 'sql', 'injection', 'csrf', 'jwt'],
-        'Binary Exploitation': ['pwn', 'buffer', 'overflow', 'shellcode', 'rop', 'ret2libc', 'heap', 'stack'],
-        'Reverse Engineering': ['reverse', 'assembly', 'ghidra', 'disassembler', 'binary analysis', 'patch', 'crack'],
-        'Forensics': ['forensics', 'pcap', 'wireshark', 'steg', 'image', 'disk', 'memory', 'shark'],
-        'Misc': ['misc', 'sanity']
+        'crypto': ['crypto', 'aes', 'rsa', 'cipher', 'xor', 'encoding'],
+        'web': ['web', 'http', 'flask', 'cookie', 'xss', 'sql', 'injection', 'csrf', 'jwt'],
+        'pwn': ['pwn', 'buffer', 'overflow', 'shellcode', 'rop', 'ret2libc', 'heap', 'stack'],
+        'rev': ['reverse', 'assembly', 'ghidra', 'disassembler', 'binary analysis', 'patch', 'crack'],
+        'forensics': ['forensics', 'pcap', 'wireshark', 'steg', 'image', 'disk', 'memory', 'shark'],
+        'misc': ['misc', 'sanity']
     }
     
     found_tags = []
-    best_category = 'Miscellaneous'
-    max_score = 0
-    
     for cat, keywords in categories.items():
-        score = 0
         for kw in keywords:
             if kw in text_lower:
-                score += 1
                 if kw not in found_tags:
                     found_tags.append(kw)
-        
-        if score > max_score:
-            max_score = score
-            best_category = cat
-            
-    return best_category, found_tags
+    return found_tags
+
+def clean_category(line):
+    # Normalize category line (remove #, whitespace, make proper case)
+    cat = line.strip().lower().replace('#', '')
+    
+    # Map common short codes to full names
+    mapping = {
+        'crypto': 'Cryptography',
+        'cryptography': 'Cryptography',
+        'web': 'Web Exploitation',
+        'web exploitation': 'Web Exploitation',
+        'pwn': 'Binary Exploitation',
+        'binary exploitation': 'Binary Exploitation',
+        'rev': 'Reverse Engineering',
+        'reverse engineering': 'Reverse Engineering',
+        'reverse': 'Reverse Engineering',
+        'forensics': 'Forensics',
+        'misc': 'Miscellaneous',
+        'miscellaneous': 'Miscellaneous',
+        'osint': 'OSINT'
+    }
+    return mapping.get(cat, cat.title())
 
 def main():
+    # Initialize data with descriptions and ranks
+    # Ideally this metadata should be separate or read from a config, but hardcoding for MVP is fine.
     data = {
         "VUWCTF 2025": {"rank": "26th place", "description": "University-level competition with emphasis on practical security challenges.", "challenges": []},
         "Null CTF 2025": {"rank": "62nd place", "description": "Community-driven CTF with focus on real-world security scenarios.", "challenges": []},
@@ -158,29 +148,49 @@ def main():
         "PatriotCTF 2025": {"rank": "398th place", "description": "Comprehensive CTF with diverse challenge categories.", "challenges": []}
     }
     
-    backdoor_dir = "BackdoorCTF"
-    if os.path.exists(backdoor_dir):
-        # Sort files to ensure stable order
-        files = sorted([f for f in os.listdir(backdoor_dir) if f.endswith(".md")])
-        for filename in files:
-            filepath = os.path.join(backdoor_dir, filename)
-            with open(filepath, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            title = filename.replace('.md', '')
-            html_content = parse_markdown(content)
-            
-            # Pass title to help with manual override
-            category, tags = infer_category_tags(title, content)
-            
-            # Append to BackdoorCTF 2025
-            data["BackdoorCTF 2025"]["challenges"].append({
-                "id": title.lower().replace(' ', '-'),
-                "title": title,
-                "category": category,
-                "tags": tags,
-                "writeup": html_content
-            })
+    # Iterate through folders
+    for folder_name, ctf_key in FOLDER_MAP.items():
+        if os.path.exists(folder_name) and ctf_key in data:
+            files = sorted([f for f in os.listdir(folder_name) if f.endswith(".md")])
+            for filename in files:
+                filepath = os.path.join(folder_name, filename)
+                
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                if not lines: continue
+
+                # Check first line for category
+                first_line = lines[0].strip()
+                content_lines = lines # Default to all lines
+                category = "Miscellaneous" # Default
+                
+                # Heuristic: If first line is short and looks like a category, use it and pop it
+                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'pwn', 'rev', 'reverse', 'forensics', 'misc', 'osint', 'network']:
+                     category = clean_category(first_line)
+                     content_lines = lines[1:] # Skip first line
+                else:
+                    # Fallback to manual map or title inference
+                    title_lower = filename.replace('.md', '').lower()
+                    for k, v in MANUAL_CATEGORIES.items():
+                        if k in title_lower:
+                            category = v
+                            break
+
+                # Join content back
+                content = "".join(content_lines)
+                
+                title = filename.replace('.md', '')
+                html_content = parse_markdown(content)
+                tags = get_inferred_tags(content)
+                
+                data[ctf_key]["challenges"].append({
+                    "id": title.lower().replace(' ', '-'),
+                    "title": title,
+                    "category": category,
+                    "tags": tags,
+                    "writeup": html_content
+                })
 
     # Output to data.js
     js_content = f"const ctfData = {json.dumps(data, indent=4)};"
