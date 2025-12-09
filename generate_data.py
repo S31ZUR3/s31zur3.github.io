@@ -11,7 +11,7 @@ FOLDER_MAP = {
     "NullCTF": "Null CTF 2025"
 }
 
-# Fallback for manual overrides if first line is missing/empty
+# Fallback for manual overrides
 MANUAL_CATEGORIES = {
     'bolt fast': 'Cryptography',
     'ambystoma mexicanum': 'Cryptography',
@@ -29,73 +29,133 @@ MANUAL_CATEGORIES = {
     'no sight required': 'Web Exploitation'
 }
 
-def parse_markdown(text):
-    html = text
-    
-    # Headers
-    html = re.sub(r'^### (.*)$', r'<h4>\1</h4>', html, flags=re.MULTILINE)
-    html = re.sub(r'^## (.*)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
-    html = re.sub(r'^# (.*)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
-    
-    # Code blocks
-    def code_block_repl(match):
-        lang = match.group(1) if match.group(1) else ''
-        code = match.group(2)
-        code = code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-        return f'<pre><code class="{lang}">{code}</code></pre>'
-    
-    html = re.sub(r'```(\w*)\n(.*?)```', code_block_repl, html, flags=re.DOTALL)
-    
-    # Inline code
-    html = re.sub(r'`([^`]+)`', r'<code>\1</code>', html)
-    
-    # Images
-    html = re.sub(r'!\s*\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1" style="max-width:100%;">', html)
-    
-    # Links
-    html = re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2" target="_blank">\1</a>', html)
+def escape_html(text):
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
-    # Bold
-    html = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', html)
+def process_inline_formatting(text):
+    # Images: ![alt](src)
+    # We replace images first so they don't get confused with links
+    text = re.sub(r'!\[(.*?)\]\((.*?)\)', r'<img src="\2" alt="\1" style="max-width:100%;">', text)
     
-    # Lists
-    lines = html.split('\n')
-    new_lines = []
-    in_list = False
+    # Links: [text](url)
+    # Simple regex for links
+    text = re.sub(r'(?<!\!)\[(.*?)\]\((.*?)\)', r'<a href="\2" target="_blank">\1</a>', text)
+    
+    # Bold: **text**
+    text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
+    
+    # Inline Code: `text`
+    text = re.sub(r'`([^`]+)`', lambda m: f'<code>{escape_html(m.group(1))}</code>', text)
+    return text
+
+def parse_markdown(text):
+    lines = text.split('\n')
+    html_output = []
+    
+    state = 'NORMAL' # NORMAL, CODE_BLOCK, UL_LIST, OL_LIST
+    buffer = [] # To accumulate paragraph text
+    
+    def flush_buffer():
+        if buffer:
+            content = ' '.join(buffer).strip()
+            if content:
+                html_output.append(f'<p>{process_inline_formatting(content)}</p>')
+            buffer.clear()
+
     for line in lines:
-        if line.strip().startswith('- ') or line.strip().startswith('* '):
-            if not in_list:
-                new_lines.append('<ul>')
-                in_list = True
-            content = line.strip()[2:]
-            new_lines.append(f'<li>{content}</li>')
-        elif in_list:
-            if not line.strip():
-                pass
+        stripped = line.strip()
+        
+        # --- CODE BLOCKS ---
+        if line.startswith('```'):
+            if state == 'CODE_BLOCK':
+                # End of code block
+                html_output.append(f'</code></pre>')
+                state = 'NORMAL'
             else:
-                 new_lines.append('</ul>')
-                 in_list = False
-                 new_lines.append(line)
-        else:
-            new_lines.append(line)
-    if in_list:
-        new_lines.append('</ul>')
-        
-    html = '\n'.join(new_lines)
-    
-    # Paragraphs
-    blocks = re.split(r'\n\s*\n', html)
-    final_html = ""
-    for block in blocks:
-        block = block.strip()
-        if not block: continue
-        
-        if re.match(r'<(h\d|ul|pre|div|table)', block):
-            final_html += block + "\n"
-        else:
-            final_html += f'<p>{block}</p>\n'
+                # Start of code block
+                flush_buffer()
+                if state in ['UL_LIST', 'OL_LIST']:
+                    html_output.append('</ul>' if state == 'UL_LIST' else '</ol>')
+                    state = 'NORMAL'
+                
+                lang = stripped[3:].strip()
+                html_output.append(f'<pre><code class="{lang}">')
+                state = 'CODE_BLOCK'
+            continue
             
-    return final_html
+        if state == 'CODE_BLOCK':
+            # Verbatim code line
+            html_output.append(escape_html(line) + '\n')
+            continue
+
+        # --- HEADERS ---
+        if stripped.startswith('#'):
+            flush_buffer()
+            if state in ['UL_LIST', 'OL_LIST']:
+                html_output.append('</ul>' if state == 'UL_LIST' else '</ol>')
+                state = 'NORMAL'
+                
+            level = len(stripped.split(' ')[0])
+            content = stripped[level:].strip()
+            # Map standard MD headers to appropriate HTML levels (h2-h4)
+            tag = f'h{min(level + 1, 6)}' 
+            html_output.append(f'<{tag}>{process_inline_formatting(content)}</{tag}>')
+            continue
+
+        # --- UNORDERED LISTS ---
+        if stripped.startswith('- ') or stripped.startswith('* '):
+            flush_buffer()
+            if state == 'OL_LIST':
+                html_output.append('</ol>')
+                state = 'NORMAL'
+            if state != 'UL_LIST':
+                html_output.append('<ul>')
+                state = 'UL_LIST'
+            
+            content = stripped[2:].strip()
+            html_output.append(f'<li>{process_inline_formatting(content)}</li>')
+            continue
+
+        # --- ORDERED LISTS ---
+        # Match "1. ", "2. " etc.
+        if re.match(r'^\d+\.\s', stripped):
+            flush_buffer()
+            if state == 'UL_LIST':
+                html_output.append('</ul>')
+                state = 'NORMAL'
+            if state != 'OL_LIST':
+                html_output.append('<ol>')
+                state = 'OL_LIST'
+            
+            # Remove the number and dot
+            content = re.sub(r'^\d+\.\s', '', stripped).strip()
+            html_output.append(f'<li>{process_inline_formatting(content)}</li>')
+            continue
+
+        # --- EMPTY LINES / PARAGRAPH BREAKS ---
+        if not stripped:
+            flush_buffer()
+            if state in ['UL_LIST', 'OL_LIST']:
+                html_output.append('</ul>' if state == 'UL_LIST' else '</ol>')
+                state = 'NORMAL'
+            continue
+            
+        # --- NORMAL TEXT / PARAGRAPH ---
+        if state in ['UL_LIST', 'OL_LIST']:
+            # Assuming flat structure for now: close list.
+            html_output.append('</ul>' if state == 'UL_LIST' else '</ol>')
+            state = 'NORMAL'
+        
+        buffer.append(line)
+
+    # Final cleanup
+    flush_buffer()
+    if state == 'CODE_BLOCK':
+        html_output.append('</code></pre>')
+    if state in ['UL_LIST', 'OL_LIST']:
+        html_output.append('</ul>' if state == 'UL_LIST' else '</ol>')
+        
+    return '\n'.join(html_output)
 
 def get_inferred_tags(text):
     text_lower = text.lower()
@@ -117,10 +177,7 @@ def get_inferred_tags(text):
     return found_tags
 
 def clean_category(line):
-    # Normalize category line (remove #, whitespace, make proper case)
     cat = line.strip().lower().replace('#', '')
-    
-    # Map common short codes to full names
     mapping = {
         'crypto': 'Cryptography',
         'cryptography': 'Cryptography',
@@ -139,8 +196,6 @@ def clean_category(line):
     return mapping.get(cat, cat.title())
 
 def main():
-    # Initialize data with descriptions and ranks
-    # Ideally this metadata should be separate or read from a config, but hardcoding for MVP is fine.
     data = {
         "VUWCTF 2025": {"rank": "26th place", "description": "University-level competition with emphasis on practical security challenges.", "challenges": []},
         "Null CTF 2025": {"rank": "62nd place", "description": "Community-driven CTF with focus on real-world security scenarios.", "challenges": []},
@@ -150,7 +205,6 @@ def main():
         "PatriotCTF 2025": {"rank": "398th place", "description": "Comprehensive CTF with diverse challenge categories.", "challenges": []}
     }
     
-    # Iterate through folders
     for folder_name, ctf_key in FOLDER_MAP.items():
         if os.path.exists(folder_name) and ctf_key in data:
             files = sorted([f for f in os.listdir(folder_name) if f.endswith(".md")])
@@ -162,39 +216,33 @@ def main():
                 
                 if not lines: continue
 
-                # Check first line for category
                 first_line = lines[0].strip()
-                content_lines = lines # Default to all lines
-                category = "Miscellaneous" # Default
+                content_lines = lines 
+                category = "Miscellaneous"
                 
-                # Heuristic: If first line is short and looks like a category, use it and pop it
-                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'pwn', 'rev', 'reverse', 'forensics', 'misc', 'osint', 'network']:
+                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'pwn', 'rev', 'reverse', 'forensics', 'misc', 'osint', 'network', 'beginner']:
                      category = clean_category(first_line)
-                     content_lines = lines[1:] # Skip first line
+                     content_lines = lines[1:]
                 else:
-                    # Fallback to manual map or title inference
                     title_lower = filename.replace('.md', '').lower()
                     for k, v in MANUAL_CATEGORIES.items():
                         if k in title_lower:
                             category = v
                             break
 
-                # Join content back
                 content = "".join(content_lines)
-                
                 title = filename.replace('.md', '')
                 html_content = parse_markdown(content)
                 tags = get_inferred_tags(content)
                 
                 data[ctf_key]["challenges"].append({
-                    "id": title.lower().replace(' ', '-'),
+                    "id": title.lower().replace(' ', '-') ,
                     "title": title,
                     "category": category,
                     "tags": tags,
                     "writeup": html_content
                 })
 
-    # Output to data.js
     js_content = f"const ctfData = {json.dumps(data, indent=4)};"
     with open('data.js', 'w', encoding='utf-8') as f:
         f.write(js_content)
