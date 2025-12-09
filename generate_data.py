@@ -6,7 +6,9 @@ import re
 FOLDER_MAP = {
     "BackdoorCTF": "BackdoorCTF 2025",
     "PatriotCTF": "PatriotCTF 2025",
-    "VuwCTF": "VUWCTF 2025"
+    "VuwCTF": "VUWCTF 2025",
+    "MetaRed CTF": "MetaRed CTF 2025",
+    "NullCTF": "Null CTF 2025"
 }
 
 # Fallback for manual overrides if first line is missing/empty
