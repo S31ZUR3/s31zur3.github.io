@@ -8,7 +8,8 @@ FOLDER_MAP = {
     "PatriotCTF": "PatriotCTF 2025",
     "VuwCTF": "VUWCTF 2025",
     "MetaRed CTF": "MetaRed CTF 2025",
-    "NullCTF": "Null CTF 2025"
+    "NullCTF": "Null CTF 2025",
+    "HeroCTF": "HeroCTF v7"
 }
 
 # Fallback for manual overrides
