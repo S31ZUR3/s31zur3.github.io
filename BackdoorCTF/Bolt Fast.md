@@ -1,0 +1,85 @@
+# CTF Writeup: Need for Speed
+
+## Challenge Overview
+
+We are given a modified RSA implementation with the following files:
+- `chall.py`: The key generation and encryption code
+- `output.txt`: The public key (N, e) and ciphertext (c)
+
+Flag: `flag{w31n3r_d1dn7_73ll_y0u_70_b3_6r33dy}`
+
+## Vulnerability Analysis
+
+Looking at the key generation code in `chall.py`:
+
+```python
+def flash_key():
+    while True:
+        p = getPrime(1024)
+        q = getPrime(1024)
+        N = p * q
+        dp_smart = getPrime(16)  # Only 16 bits!
+        try:
+            e = inverse(dp_smart, p-1)
+            return N, e, dp_smart
+        except ValueError:
+            continue
+```
+
+The vulnerability is clear: `dp_smart` is only a 16-bit prime (maximum value ~65536).
+
+The relationship is: `e * dp ≡ 1 (mod p-1)`
+
+This means: `e * dp = 1 + k * (p-1)` for some integer k
+
+Rearranging: `p = (e * dp - 1) / k + 1`
+
+## Attack Strategy
+
+Since dp is so small (only 16 bits), we can brute force it:
+
+1. Iterate through all 16-bit primes for dp (roughly 6,500 primes)
+2. For each dp, compute `e * dp - 1`
+3. Try different values of k to find when `(e * dp - 1) / k + 1` gives us a valid factor of N
+4. Once we find p, compute q = N / p
+5. Calculate the private key d and decrypt the message
+
+## Solution Code
+
+```python
+from Crypto.Util.number import long_to_bytes, isPrime
+
+N = 22061149554706951873851465765917042279909309233484615798640186468876401527123242297915465375459511054772541825273007749026648641620485458471351811298443479262277231839408201654282927999029324652496830649919637863202844794784443579336735415046336390091671003022244732389217910334465895328371360158510046347031294125509649474722535171601096998732929497780870057433634214228116293166963101489644680801538837005001377764416442380530464289453201654394144682138927826247301956954884930328147978637795259346321547054237005318172528896865428457293207571804464061990459958593520373578234234490804585522859401957032395007142007
+e = 9648003423571638489624579625383119603270189664714210175737275695548206153582516635644990660189908448510652756058045483763071850222529184219333877863638216254054444012130393864033392161426815671725858723096432660521038315432183692553568344247916320931122090436770154203149432285380142051084178668290839858171
+c = 18817014323644102879407569381912044887671193778381872592373573382139976320220125847317309926920208859012582031032930373240219755720268543444729983316326640661427616841700761054678137741340093140586895094016730198447552611014038632666821117758006775144046000049080406858764900680265384743839472653817299383323869146152251839342236631780818396088131196202767951301023089053662813175083035336272981588533957561537975684034210166185396046071368061264321959248372783262788158418696375783427276741258526067168910326630496339287237940444426277757582174810909733937257258767407189452212391936958267819666424558678534741723930
+
+print("Brute forcing 16-bit dp values...")
+
+for dp in range(2, 65536):
+    if not isPrime(dp):
+        continue
+    
+    edp_minus_1 = e * dp - 1
+    
+    for k in range(1, 100000):
+        if edp_minus_1 % k != 0:
+            continue
+        
+        p_minus_1 = edp_minus_1 // k
+        p = p_minus_1 + 1
+        
+        if p > 1 and p < N and N % p == 0:
+            q = N // p
+            
+            if p * q == N:
+                print(f"Found: dp={dp}, k={k}")
+                
+                phi = (p - 1) * (q - 1)
+                d = pow(e, -1, phi)
+                m = pow(c, d, N)
+                flag = long_to_bytes(m)
+                
+                print(f"FLAG: {flag.decode()}")
+                exit()
+```
+

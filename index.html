@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>security.terminal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-button"></div>
+            <div class="terminal-button"></div>
+            <div class="terminal-button"></div>
+            <div class="terminal-title">guest@security ~ bash</div>
+        </div>
+        <div class="terminal-body">
+            <!-- Main Menu -->
+            <div id="main-menu" class="section">
+                <div class="ascii-border">
+                    <p>┌─────────────────────────────────────────────────────────┐</p>
+                    <p>│       security research & ctf writeups terminal         │</p>
+                    <p>└─────────────────────────────────────────────────────────┘</p>
+                </div>
+                
+                <div class="output">
+                    <p>welcome to my security research terminal.</p>
+                    <p>ctf player | exploit developer | security researcher</p>
+                    <p style="margin-top: 10px;">select an option to navigate<span class="blink">_</span></p>
+                </div>
+
+                <div class="menu-box">
+                    <div class="menu-title">main menu</div>
+                    <div class="menu-item" onclick="navigateTo('writeups')">1. ctf writeups</div>
+                    <div class="menu-item" onclick="navigateTo('about')">2. about me</div>
+                    <div class="menu-item" onclick="navigateTo('ctfs')">3. competition history</div>
+                    <div class="menu-item" onclick="navigateTo('skills')">4. technical skills</div>
+                    <div class="menu-item" onclick="navigateTo('contact')">5. contact & links</div>
+                </div>
+            </div>
+
+            <!-- Writeups List Section -->
+            <div id="writeups" class="section">
+                <div class="prompt">cat writeups/</div>
+                
+                <h2>ctf writeups</h2>
+
+                <div class="search-container">
+                    <input type="text" id="ctf-search" class="search-input" placeholder="search ctfs, categories, or tags..." onkeyup="filterWriteups()">
+                </div>
+                
+                <div id="writeups-list" class="post-list">
+                    <!-- Dynamic Content -->
+                </div>
+
+                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+            </div>
+
+            <!-- CTF Detail Section -->
+            <div id="ctf-detail" class="section">
+                <div class="prompt" id="ctf-prompt">ls ctf/</div>
+                
+                <h2 id="ctf-title">CTF Name</h2>
+                <p id="ctf-description" class="ctf-desc"></p>
+                <div id="ctf-stats" class="post-date"></div>
+
+                <div class="separator"></div>
+                
+                <div class="filter-tags" id="challenge-filters">
+                    <!-- Dynamic Filters -->
+                </div>
+
+                <div id="challenges-list">
+                    <!-- Dynamic Challenges -->
+                </div>
+
+                <div class="back-button" onclick="navigateTo('writeups')">back to writeups</div>
+            </div>
+
+            <!-- Challenge Detail Section -->
+            <div id="challenge-detail" class="section">
+                <div class="prompt" id="challenge-prompt">cat challenge</div>
+                
+                <h2 id="challenge-title">Challenge Title</h2>
+                <div class="post-tags" id="challenge-tags"></div>
+                
+                <div id="challenge-content" class="writeup-content">
+                    <!-- Markdown Content -->
+                </div>
+
+                <div class="pagination">
+                    <button class="pagination-btn" id="prev-challenge">← previous</button>
+                    <button class="pagination-btn" id="next-challenge">next →</button>
+                </div>
+
+                <div class="back-button" id="back-to-ctf">back to ctf</div>
+            </div>
+
+            <!-- Other Static Sections -->
+            <div id="about" class="section">
+                <div class="prompt">whoami</div>
+                <h2>about me</h2>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <div class="info-number">6</div>
+                        <div class="info-label">ctfs in 2025</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-number">~50</div>
+                        <div class="info-label">challenges solved</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-number">active</div>
+                        <div class="info-label">current status</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-number">learning</div>
+                        <div class="info-label">always improving</div>
+                    </div>
+                </div>
+                <div class="text-block">
+                    <p>I'm a cybersecurity student passionate about offensive security and vulnerability research. My journey into security started with curiosity about how systems work under the hood, which quickly evolved into a deep interest in finding and exploiting weaknesses.</p>
+                </div>
+                <div class="text-block">
+                    <p>When I'm not competing in CTFs or working on school projects, I'm usually reading security research papers, practicing on HackTheBox, or contributing writeups to help others learn. I believe in knowledge sharing and giving back to the security community.</p>
+                </div>
+                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+            </div>
+
+            <div id="ctfs" class="section">
+                <div class="prompt">ls competitions/</div>
+                <h2>competition history</h2>
+                <!-- Static content kept for history not in writeups data -->
+                <div class="ctf-item">
+                    <div class="ctf-name">VUWCTF 2025</div>
+                    <div class="ctf-desc">University-level competition with emphasis on practical security challenges.</div>
+                    <div class="ctf-rank">rank: 26th place</div>
+                </div>
+                <div class="ctf-item">
+                    <div class="ctf-name">Null CTF 2025</div>
+                    <div class="ctf-desc">Community-driven CTF with focus on real-world security scenarios.</div>
+                    <div class="ctf-rank">rank: 62nd place</div>
+                </div>
+                <!-- ... other static items ... -->
+                 <div class="ctf-item">
+                    <div class="ctf-name">BackdoorCTF 2025</div>
+                    <div class="ctf-desc">Advanced competition featuring challenging pwn and reverse engineering problems.</div>
+                    <div class="ctf-rank">rank: 79th place</div>
+                </div>
+                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+            </div>
+
+            <div id="skills" class="section">
+                <div class="prompt">cat /etc/skills.conf</div>
+                <h2>technical skills</h2>
+                <div class="skills-grid">
+                    <div class="skill-box">binary exploitation</div>
+                    <div class="skill-box">web security</div>
+                    <div class="skill-box">reverse engineering</div>
+                    <div class="skill-box">cryptography</div>
+                    <div class="skill-box">network analysis</div>
+                    <div class="skill-box">digital forensics</div>
+                    <div class="skill-box">python</div>
+                    <div class="skill-box">c/c++</div>
+                    <div class="skill-box">assembly</div>
+                    <div class="skill-box">linux</div>
+                    <div class="skill-box">burp suite</div>
+                    <div class="skill-box">ghidra</div>
+                    <div class="skill-box">gdb</div>
+                    <div class="skill-box">metasploit</div>
+                    <div class="skill-box">wireshark</div>
+                    <div class="skill-box">nmap</div>
+                </div>
+                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+            </div>
+
+            <div id="contact" class="section">
+                <div class="prompt">./connect.sh</div>
+                <h2>contact & links</h2>
+                <div class="text-block">
+                    <p>Interested in collaborating on security research or CTF competitions? Feel free to reach out through any of the channels below.</p>
+                </div>
+                <div class="contact-list">
+                    <div class="contact-item"><a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></div>
+                    <div class="contact-item"><a href="https://twitter.com/yourusername" target="_blank">twitter.com/yourusername</a></div>
+                    <div class="contact-item"><a href="https://linkedin.com/in/yourusername" target="_blank">linkedin.com/in/yourusername</a></div>
+                    <div class="contact-item"><a href="mailto:your.email@example.com">your.email@example.com</a></div>
+                </div>
+                <div class="separator"></div>
+                <div class="output" style="text-align: center;">
+                    <p>flag{thanks_for_visiting_my_terminal}</p>
+                    <p style="margin-top: 5px;">© 2024 | all writeups released under creative commons</p>
+                </div>
+                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // Router and State Management
+        function navigateTo(view, param1, param2) {
+            let hash = view;
+            if (param1) hash += '/' + encodeURIComponent(param1);
+            if (param2) hash += '/' + encodeURIComponent(param2);
+            window.location.hash = hash;
+        }
+
+        function handleRoute() {
+            const hash = window.location.hash.substring(1); // Remove #
+            const parts = hash.split('/').map(decodeURIComponent);
+            const view = parts[0] || 'main-menu';
+
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+            // Show specific view
+            if (view === 'main-menu') {
+                document.getElementById('main-menu').classList.add('active');
+            } else if (view === 'writeups') {
+                document.getElementById('writeups').classList.add('active');
+                renderWriteups();
+            } else if (view === 'ctf') {
+                document.getElementById('ctf-detail').classList.add('active');
+                renderCtfDetail(parts[1]);
+            } else if (view === 'challenge') {
+                document.getElementById('challenge-detail').classList.add('active');
+                renderChallengeDetail(parts[1], parts[2]);
+            } else if (document.getElementById(view)) {
+                // Fallback for static sections like 'about', 'contact'
+                document.getElementById(view).classList.add('active');
+            } else {
+                // Default to main menu
+                document.getElementById('main-menu').classList.add('active');
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Logic
+        function renderWriteups() {
+            const list = document.getElementById('writeups-list');
+            list.innerHTML = '';
+            
+            const filter = document.getElementById('ctf-search').value.toLowerCase();
+
+            Object.keys(ctfData).forEach(ctfName => {
+                const ctf = ctfData[ctfName];
+                // Simple search logic
+                if (filter && !ctfName.toLowerCase().includes(filter) && !ctf.description.toLowerCase().includes(filter)) {
+                    return; 
+                }
+
+                // Check if CTF has challenges (writeups available)
+                const hasWriteups = ctf.challenges && ctf.challenges.length > 0;
+                
+                // Only showing CTFs that exist in data or have descriptions
+                const div = document.createElement('div');
+                div.className = 'post-item';
+                div.onclick = () => hasWriteups ? navigateTo('ctf', ctfName) : alert('No writeups uploaded for this CTF yet.');
+                
+                let tagsHtml = '';
+                // Gather unique tags from challenges if available
+                if (hasWriteups) {
+                    const allTags = new Set();
+                    ctf.challenges.forEach(ch => ch.tags.forEach(t => allTags.add(t)));
+                    tagsHtml = `<div class="post-tags">${Array.from(allTags).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
+                }
+
+                div.innerHTML = "`
+                    <div class=\"post-date\">[2025] ${ctf.rank}</div>
+                    <div class=\"post-title\">${ctfName} ${hasWriteups ? '' : '(No Writeups)'}</div>
+                    <div class=\"post-excerpt\">${ctf.description}</div>
+                    ${tagsHtml}
+                `";
+                list.appendChild(div);
+            });
+        }
+
+        function filterWriteups() {
+            renderWriteups();
+        }
+
+        function renderCtfDetail(ctfName) {
+            const ctf = ctfData[ctfName];
+            if (!ctf) return navigateTo('writeups');
+
+            document.getElementById('ctf-title').textContent = ctfName;
+            document.getElementById('ctf-prompt').textContent = `ls ${ctfName.toLowerCase().replace(/ /g, '_')}/`;
+            document.getElementById('ctf-description').textContent = ctf.description;
+            document.getElementById('ctf-stats').textContent = `Rank: ${ctf.rank} | Writeups: ${ctf.challenges.length}`;
+
+            const list = document.getElementById('challenges-list');
+            list.innerHTML = '';
+
+            // Unique categories for filter
+            const categories = new Set(ctf.challenges.map(c => c.category));
+            const filterContainer = document.getElementById('challenge-filters');
+            filterContainer.innerHTML = '<span class="filter-tag active" onclick="filterChallenges(this, \'all\')">All</span>';
+            categories.forEach(cat => {
+                const span = document.createElement('span');
+                span.className = 'filter-tag';
+                span.textContent = cat;
+                span.onclick = () => filterChallenges(span, cat);
+                filterContainer.appendChild(span);
+            });
+
+            // Store current CTF challenges for local filtering
+            window.currentChallenges = ctf.challenges;
+
+            ctf.challenges.forEach(chall => {
+                const div = document.createElement('div');
+                div.className = 'challenge-item';
+                div.dataset.category = chall.category;
+                div.onclick = () => navigateTo('challenge', ctfName, chall.id);
+                
+                div.innerHTML = "`
+                    <div class=\"challenge-title\">${chall.title}</div>
+                    <div class=\"challenge-meta\">
+                        <span class=\"category-tag\">${chall.category}</span>
+                    </div>
+                `";
+                list.appendChild(div);
+            });
+        }
+
+        function filterChallenges(element, category) {
+            // Update UI
+            document.querySelectorAll('#challenge-filters .filter-tag').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Filter List
+            const items = document.querySelectorAll('.challenge-item');
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function renderChallengeDetail(ctfName, challengeId) {
+            const ctf = ctfData[ctfName];
+            if (!ctf) return navigateTo('writeups');
+            
+            const challengeIndex = ctf.challenges.findIndex(c => c.id === challengeId);
+            if (challengeIndex === -1) return navigateTo('ctf', ctfName);
+            
+            const challenge = ctf.challenges[challengeIndex];
+
+            document.getElementById('challenge-title').textContent = challenge.title;
+            document.getElementById('challenge-prompt').textContent = `cat ${challengeId}.md`;
+            
+            const tagsContainer = document.getElementById('challenge-tags');
+            tagsContainer.innerHTML = challenge.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+            document.getElementById('challenge-content').innerHTML = challenge.writeup;
+            
+            // Pagination Logic
+            const prevBtn = document.getElementById('prev-challenge');
+            const nextBtn = document.getElementById('next-challenge');
+            
+            if (challengeIndex > 0) {
+                prevBtn.disabled = false;
+                prevBtn.onclick = () => navigateTo('challenge', ctfName, ctf.challenges[challengeIndex - 1].id);
+            } else {
+                prevBtn.disabled = true;
+            }
+
+            if (challengeIndex < ctf.challenges.length - 1) {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => navigateTo('challenge', ctfName, ctf.challenges[challengeIndex + 1].id);
+            } else {
+                nextBtn.disabled = true;
+            }
+            
+            // Update back button
+            const backBtn = document.getElementById('back-to-ctf');
+            backBtn.onclick = () => navigateTo('ctf', ctfName);
+        }
+
+        // Initialize
+        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('load', handleRoute);
+    </script>
+</body>
+</html>
