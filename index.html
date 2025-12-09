@@ -268,12 +268,12 @@
                     tagsHtml = `<div class="post-tags">${Array.from(allTags).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
                 }
 
-                div.innerHTML = "`
-                    <div class=\"post-date\">[2025] ${ctf.rank}</div>
-                    <div class=\"post-title\">${ctfName} ${hasWriteups ? '' : '(No Writeups)'}</div>
-                    <div class=\"post-excerpt\">${ctf.description}</div>
+                div.innerHTML = `
+                    <div class="post-date">[2025] ${ctf.rank}</div>
+                    <div class="post-title">${ctfName} ${hasWriteups ? '' : '(No Writeups)'}</div>
+                    <div class="post-excerpt">${ctf.description}</div>
                     ${tagsHtml}
-                `";
+                `;
                 list.appendChild(div);
             });
         }
@@ -315,12 +315,12 @@
                 div.dataset.category = chall.category;
                 div.onclick = () => navigateTo('challenge', ctfName, chall.id);
                 
-                div.innerHTML = "`
-                    <div class=\"challenge-title\">${chall.title}</div>
-                    <div class=\"challenge-meta\">
-                        <span class=\"category-tag\">${chall.category}</span>
+                div.innerHTML = `
+                    <div class="challenge-title">${chall.title}</div>
+                    <div class="challenge-meta">
+                        <span class="category-tag">${chall.category}</span>
                     </div>
-                `";
+                `;
                 list.appendChild(div);
             });
         }
