@@ -1,5 +1,3 @@
-# CTF Writeup: Need for Speed
-
 ## Challenge Overview
 
 We are given a modified RSA implementation with the following files:
