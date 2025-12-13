@@ -28,7 +28,27 @@ MANUAL_CATEGORIES = {
     'trust issues': 'Web Exploitation',
     'marketflow': 'Web Exploitation',
     'no sight': 'Web Exploitation',
-    'no sight required': 'Web Exploitation'
+    'no sight required': 'Web Exploitation',
+    # NexHuntCTF overrides
+    'the scribe': 'Miscellaneous',
+    'plankton': 'Binary Exploitation',
+    'classic oracle': 'Cryptography',
+    'web daveloper': 'Web Exploitation',
+    'effortless': 'Reverse Engineering',
+    'grace': 'Reverse Engineering',
+    'tarnished': 'Reverse Engineering',
+    'ghostnote': 'Binary Exploitation',
+    'archive keeper': 'Binary Exploitation',
+    'blank': 'Reverse Engineering',
+    'blinders': 'Miscellaneous', # Assuming beginner maps to Misc or specific category
+    'allo': 'Miscellaneous',
+    'huntme3': 'Reverse Engineering',
+    'silent flag': 'Blockchain',
+    'chain clue': 'Blockchain',
+    'calculator': 'Web Exploitation',
+    'can you hear the music?': 'Miscellaneous', # Assuming beginner maps to Misc
+    'huntme2': 'Miscellaneous', # Assuming beginner maps to Misc
+    'huntme1': 'Miscellaneous' # Assuming beginner maps to Misc
 }
 
 def escape_html(text):
@@ -167,7 +187,8 @@ def get_inferred_tags(text):
         'pwn': ['pwn', 'buffer', 'overflow', 'shellcode', 'rop', 'ret2libc', 'heap', 'stack'],
         'rev': ['reverse', 'assembly', 'ghidra', 'disassembler', 'binary analysis', 'patch', 'crack'],
         'forensics': ['forensics', 'pcap', 'wireshark', 'steg', 'image', 'disk', 'memory', 'shark'],
-        'misc': ['misc', 'sanity']
+        'misc': ['misc', 'sanity'],
+        'blockchain': ['blockchain', 'solidity', 'ethereum', 'smart contract']
     }
     
     found_tags = []
@@ -193,7 +214,8 @@ def clean_category(line):
         'forensics': 'Forensics',
         'misc': 'Miscellaneous',
         'miscellaneous': 'Miscellaneous',
-        'osint': 'OSINT'
+        'osint': 'OSINT',
+        'blockchain': 'Blockchain'
     }
     return mapping.get(cat, cat.title())
 
@@ -205,7 +227,7 @@ def main():
         "BackdoorCTF 2025": {"rank": "79th place", "description": "Advanced competition featuring challenging pwn and reverse engineering problems.", "challenges": []},
         "HeroCTF v7": {"rank": "111th place", "description": "Competed in various challenge categories including web exploitation, cryptography, and reverse engineering.", "challenges": []},
         "PatriotCTF 2025": {"rank": "398th place", "description": "Comprehensive CTF with diverse challenge categories.", "challenges": []},
-        "NexHuntCTF 2025": {"rank": "N/A", "description": "Latest competition writeups.", "challenges": []}
+        "NexHuntCTF 2025": {"rank": "31st place", "description": "Latest competition writeups.", "challenges": []} 
     }
     
     for folder_name, ctf_key in FOLDER_MAP.items():
@@ -226,15 +248,28 @@ def main():
                 content_lines = lines 
                 category = "Miscellaneous"
                 
-                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner']:
+                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner', 'blockchain']:
                      category = clean_category(first_line)
                      content_lines = lines[1:]
                 else:
                     title_lower = filename.replace('.md', '').lower()
-                    for k, v in MANUAL_CATEGORIES.items():
-                        if k in title_lower:
-                            category = v
-                            break
+                    # Check for direct filename match in MANUAL_CATEGORIES
+                    if title_lower in MANUAL_CATEGORIES:
+                        category = MANUAL_CATEGORIES[title_lower]
+                    else:
+                        # Fallback to manual map using 'in' operator for partial matches
+                        for k, v in MANUAL_CATEGORIES.items():
+                            if k in title_lower:
+                                category = v
+                                break
+                    # If category is still default, try to infer from content
+                    if category == "Miscellaneous":
+                         # Only infer if it's not explicitly set by first line or manual map
+                         # get_inferred_tags provides a list of tags; for category, we need a single best guess
+                         # This needs a better single-category inference if there's no first line
+                         # For now, stick to "Miscellaneous" if no clear category is found.
+                         pass
+
 
                 content = "".join(content_lines)
                 title = filename.replace('.md', '')
@@ -242,7 +277,7 @@ def main():
                 tags = get_inferred_tags(content)
                 
                 data[ctf_key]["challenges"].append({
-                    "id": title.lower().replace(' ', '-') ,
+                    "id": title.lower().replace(' ', '-').replace('?', '').replace('.', ''), # Clean ID for special chars
                     "title": title,
                     "category": category,
                     "tags": tags,
