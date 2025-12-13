@@ -9,7 +9,8 @@ FOLDER_MAP = {
     "VuwCTF": "VUWCTF 2025",
     "MetaRed CTF": "MetaRed CTF 2025",
     "NullCTF": "Null CTF 2025",
-    "HeroCTF": "HeroCTF v7"
+    "HeroCTF": "HeroCTF v7",
+    "NexHuntCTF": "NexHuntCTF 2025"
 }
 
 # Fallback for manual overrides
@@ -208,9 +209,12 @@ def main():
     }
     
     for folder_name, ctf_key in FOLDER_MAP.items():
+        print(f"Processing folder: {folder_name} for key: {ctf_key}")
         if os.path.exists(folder_name) and ctf_key in data:
             files = sorted([f for f in os.listdir(folder_name) if f.endswith(".md")])
+            print(f"Found {len(files)} markdown files in {folder_name}")
             for filename in files:
+                print(f"  Processing file: {filename}")
                 filepath = os.path.join(folder_name, filename)
                 
                 with open(filepath, 'r', encoding='utf-8') as f:
