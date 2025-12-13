@@ -40,15 +40,15 @@ MANUAL_CATEGORIES = {
     'ghostnote': 'Binary Exploitation',
     'archive keeper': 'Binary Exploitation',
     'blank': 'Reverse Engineering',
-    'blinders': 'Miscellaneous', # Assuming beginner maps to Misc or specific category
+    'blinders': 'Beginner', 
     'allo': 'Miscellaneous',
     'huntme3': 'Reverse Engineering',
     'silent flag': 'Blockchain',
     'chain clue': 'Blockchain',
     'calculator': 'Web Exploitation',
-    'can you hear the music?': 'Miscellaneous', # Assuming beginner maps to Misc
-    'huntme2': 'Miscellaneous', # Assuming beginner maps to Misc
-    'huntme1': 'Miscellaneous' # Assuming beginner maps to Misc
+    'can you hear the music?': 'Beginner', 
+    'huntme2': 'Beginner', 
+    'huntme1': 'Beginner' 
 }
 
 def escape_html(text):
@@ -248,19 +248,27 @@ def main():
                 content_lines = lines 
                 category = "Miscellaneous"
                 
+                content = "".join(content_lines)
+                title = filename.replace('.md', '')
+
+                # Check if first line is a category based on heuristic
                 if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner', 'blockchain']:
                      category = clean_category(first_line)
                      content_lines = lines[1:]
+                     # Re-join content if lines were consumed
+                     content = "".join(content_lines)
                 else:
                     title_lower = filename.replace('.md', '').lower()
                     # Check for direct filename match in MANUAL_CATEGORIES
                     if title_lower in MANUAL_CATEGORIES:
                         category = MANUAL_CATEGORIES[title_lower]
+                        print(f"    [OVERRIDE] Applied manual category '{category}' for '{title}'")
                     else:
                         # Fallback to manual map using 'in' operator for partial matches
                         for k, v in MANUAL_CATEGORIES.items():
                             if k in title_lower:
                                 category = v
+                                print(f"    [OVERRIDE-PARTIAL] Applied manual category '{category}' for '{title}'")
                                 break
                     # If category is still default, try to infer from content
                     if category == "Miscellaneous":
@@ -271,8 +279,6 @@ def main():
                          pass
 
 
-                content = "".join(content_lines)
-                title = filename.replace('.md', '')
                 html_content = parse_markdown(content)
                 tags = get_inferred_tags(content)
                 
