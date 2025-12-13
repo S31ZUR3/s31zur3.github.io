@@ -251,33 +251,33 @@ def main():
                 content = "".join(content_lines)
                 title = filename.replace('.md', '')
 
-                # Check if first line is a category based on heuristic
-                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner', 'blockchain']:
-                     category = clean_category(first_line)
-                     content_lines = lines[1:]
-                     # Re-join content if lines were consumed
-                     content = "".join(content_lines)
+                # 1. First check for MANUAL OVERRIDE (highest priority)
+                manual_category_found = False
+                title_lower = filename.replace('.md', '').lower()
+                
+                # Check for direct filename match in MANUAL_CATEGORIES
+                if title_lower in MANUAL_CATEGORIES:
+                    category = MANUAL_CATEGORIES[title_lower]
+                    manual_category_found = True
+                    print(f"    [OVERRIDE] Applied manual category '{category}' for '{title}'")
                 else:
-                    title_lower = filename.replace('.md', '').lower()
-                    # Check for direct filename match in MANUAL_CATEGORIES
-                    if title_lower in MANUAL_CATEGORIES:
-                        category = MANUAL_CATEGORIES[title_lower]
-                        print(f"    [OVERRIDE] Applied manual category '{category}' for '{title}'")
+                    # Fallback to manual map using 'in' operator for partial matches
+                    for k, v in MANUAL_CATEGORIES.items():
+                        if k in title_lower:
+                            category = v
+                            manual_category_found = True
+                            print(f"    [OVERRIDE-PARTIAL] Applied manual category '{category}' for '{title}'")
+                            break
+                
+                # 2. If no manual override, try to infer from first line
+                if not manual_category_found:
+                    if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner', 'blockchain']:
+                         category = clean_category(first_line)
+                         content_lines = lines[1:]
+                         content = "".join(content_lines)
                     else:
-                        # Fallback to manual map using 'in' operator for partial matches
-                        for k, v in MANUAL_CATEGORIES.items():
-                            if k in title_lower:
-                                category = v
-                                print(f"    [OVERRIDE-PARTIAL] Applied manual category '{category}' for '{title}'")
-                                break
-                    # If category is still default, try to infer from content
-                    if category == "Miscellaneous":
-                         # Only infer if it's not explicitly set by first line or manual map
-                         # get_inferred_tags provides a list of tags; for category, we need a single best guess
-                         # This needs a better single-category inference if there's no first line
-                         # For now, stick to "Miscellaneous" if no clear category is found.
-                         pass
-
+                        # 3. If still nothing, it stays as default "Miscellaneous" (or you could add content-based inference here)
+                        pass
 
                 html_content = parse_markdown(content)
                 tags = get_inferred_tags(content)
