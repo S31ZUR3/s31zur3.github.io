@@ -203,7 +203,8 @@ def main():
         "MetaRed CTF 2025": {"rank": "66th place", "description": "Specialized competition focusing on red team operations and offensive security techniques.", "challenges": []},
         "BackdoorCTF 2025": {"rank": "79th place", "description": "Advanced competition featuring challenging pwn and reverse engineering problems.", "challenges": []},
         "HeroCTF v7": {"rank": "111th place", "description": "Competed in various challenge categories including web exploitation, cryptography, and reverse engineering.", "challenges": []},
-        "PatriotCTF 2025": {"rank": "398th place", "description": "Comprehensive CTF with diverse challenge categories.", "challenges": []}
+        "PatriotCTF 2025": {"rank": "398th place", "description": "Comprehensive CTF with diverse challenge categories.", "challenges": []},
+        "NexHuntCTF 2025": {"rank": "N/A", "description": "Latest competition writeups.", "challenges": []}
     }
     
     for folder_name, ctf_key in FOLDER_MAP.items():

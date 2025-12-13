@@ -885,5 +885,10 @@ const ctfData = {
                 "writeup": "<p>The challenge is a docx file. A docx file is a zip archive. Unzip the file using <code>unzip word_sea_adventures.docx -d word_sea_adventures</code>.</p>\n<p>This extracts the contents of the docx file into a directory named <code>word_sea_adventures</code>. Inside this directory, we find several files, including images and XML files.</p>\n<p>The <code>document.xml</code> file contains a hint: \"Word documents share a similar secret: although they appear as a single file, they are really like little 'zipped-up' bottles of fun.\" This confirms that we are on the right track by unzipping the file.</p>\n<p>We then use the <code>steghide</code> tool to check for hidden data in the image files. <code>steghide extract -sf word_sea_adventures/crab.jpg</code> extracts a file named <code>decoy2.txt</code>. The content of <code>decoy2.txt</code> is \"Mr Crabs heard that his cashier may be hiding some money and maybe a flag somewhere.\"</p>\n<p>This hint points to the cashier of the Krusty Krab, who is Squidward. We then use <code>steghide</code> on the <code>squid.jpg</code> file: <code>steghide extract -sf word_sea_adventures/squid.jpg</code></p>\n<p>This extracts a file named <code>flag.txt</code>. The content of <code>flag.txt</code> is: I guess you found handsome squidward... even his looks can't hide the flag. tctf{w0rD_f1le5_ar3_als0_z1p}</p>\n<p>[[PatriotCTF-2025]]</p>"
             }
         ]
+    },
+    "NexHuntCTF 2025": {
+        "rank": "N/A",
+        "description": "Latest competition writeups.",
+        "challenges": []
     }
 };
