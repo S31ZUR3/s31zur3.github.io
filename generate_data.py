@@ -226,7 +226,7 @@ def main():
                 content_lines = lines 
                 category = "Miscellaneous"
                 
-                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'pwn', 'rev', 'reverse', 'forensics', 'misc', 'osint', 'network', 'beginner']:
+                if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner']:
                      category = clean_category(first_line)
                      content_lines = lines[1:]
                 else:
