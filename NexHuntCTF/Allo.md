@@ -1,3 +1,4 @@
+Forensics
 ## Initial Analysis
 The challenge provided a single file, `capture.pcapng`, indicating a network forensics task.
 First, I used `tshark` to get an overview of the TCP conversations:

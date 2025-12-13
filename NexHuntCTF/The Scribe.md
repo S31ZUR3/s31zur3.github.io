@@ -1,3 +1,4 @@
+Miscellaneous
 ## Overview
 We are provided with a file named `dump.hex` containing a sequence of hexadecimal values. The goal is to decode these values to retrieve the flag.
 

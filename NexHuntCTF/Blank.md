@@ -1,3 +1,4 @@
+Forensics
 ### **1. Initial Analysis**
 
 We started by inspecting the binary using `strings`, which dumps all printable characters from the file.

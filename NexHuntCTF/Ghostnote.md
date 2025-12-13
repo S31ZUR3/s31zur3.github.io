@@ -1,3 +1,4 @@
+Binary Exploitation
 ## Vulnerability Analysis
 
 The binary contains two critical **Use-After-Free (UAF)** vulnerabilities:

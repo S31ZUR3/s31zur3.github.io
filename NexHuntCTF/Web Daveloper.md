@@ -1,3 +1,4 @@
+Web Exploitation
 **Initial Reconnaissance:**
 1.  Accessed the main URL `http://ctf.nexus-security.club:3555`, which returned "WELCOME TO THIS EASY CTF CHALLENGE".
 2.  The user provided hints about subdomains: `public` (400), `share` (400), `vault` (403).

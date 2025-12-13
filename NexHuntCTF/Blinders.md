@@ -1,3 +1,4 @@
+Miscellaneous
 ## 🕵️ Analysis & Solution
 
 ### 1. Initial Reconnaissance (`binwalk`)

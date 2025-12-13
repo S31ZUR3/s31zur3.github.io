@@ -1,3 +1,4 @@
+Web Exploitation
 1. Initial Analysis
 
 The challenge provided a .wav file. My first step was to open it in an audio tool to inspect the spectrogram for visual flags.

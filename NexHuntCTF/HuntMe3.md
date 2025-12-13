@@ -1,3 +1,4 @@
+Reverse Engineering
 ## 1. Initial Reconnaissance
 
 We started with basic static analysis using `strings` to see if the flag was stored in plain text.

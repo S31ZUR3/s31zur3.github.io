@@ -1,3 +1,4 @@
+Reverse Engineering
 ### 1. Initial Analysis & Unpacking
 
 We started with a Windows executable named `effortless.exe`. A quick inspection of the file strings or headers (specifically section names like `UPX0`, `UPX1`) revealed it was packed with **UPX**.

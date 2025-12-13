@@ -1,3 +1,4 @@
+Reverse Engineering
 ## 1. Initial Reconnaissance
 
 We started with a file named `tarnished`. First, we verified its type and permissions.

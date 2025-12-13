@@ -1,3 +1,4 @@
+Reverse Engineering
 1. Initial Analysis (FUN_004013df)
 
 The main logic in FUN_004013df (the entry point after setup) showed that user input was read and then passed to a function named FUN_0040132a for validation. Success required FUN_0040132a to return a non-zero value.
