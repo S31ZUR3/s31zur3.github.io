@@ -10,7 +10,8 @@ FOLDER_MAP = {
     "MetaRed CTF": "MetaRed CTF 2025",
     "NullCTF": "Null CTF 2025",
     "HeroCTF": "HeroCTF v7",
-    "NexHuntCTF": "NexHuntCTF 2025"
+    "NexHuntCTF": "NexHuntCTF 2025",
+    "ShazCTF": "ShazCTF 2025"
 }
 
 # Fallback for manual overrides
@@ -48,7 +49,19 @@ MANUAL_CATEGORIES = {
     'calculator': 'Web Exploitation',
     'can you hear the music?': 'Beginner', 
     'huntme2': 'Beginner', 
-    'huntme1': 'Beginner' 
+    'huntme1': 'Beginner',
+    # ShazCTF overrides
+    'baby crypto': 'Cryptography',
+    'baby shark': 'Forensics',
+    'vaultchain': 'Blockchain',
+    'insecure blog': 'Web Exploitation',
+    'chemical reaction': 'Reverse Engineering',
+    'all is well': 'Miscellaneous',
+    'random': 'Cryptography',
+    'thooooku durai': 'Binary Exploitation',
+    'doraemon': 'Forensics',
+    'so strong ahhhh?': 'Reverse Engineering',
+    'can you': 'Web Exploitation'
 }
 
 def escape_html(text):
@@ -221,6 +234,7 @@ def clean_category(line):
 
 def main():
     data = {
+        "ShazCTF 2025": {"rank": "1st place", "description": "Achieved 1st place globally. Featured a mix of challenging security problems across all categories.", "challenges": []},
         "VUWCTF 2025": {"rank": "26th place", "description": "University-level competition with emphasis on practical security challenges.", "challenges": []},
         "Null CTF 2025": {"rank": "62nd place", "description": "Community-driven CTF with focus on real-world security scenarios.", "challenges": []},
         "MetaRed CTF 2025": {"rank": "66th place", "description": "Specialized competition focusing on red team operations and offensive security techniques.", "challenges": []},
