@@ -49,19 +49,7 @@ MANUAL_CATEGORIES = {
     'calculator': 'Web Exploitation',
     'can you hear the music?': 'Beginner', 
     'huntme2': 'Beginner', 
-    'huntme1': 'Beginner',
-    # ShazCTF overrides
-    'baby crypto': 'Cryptography',
-    'baby shark': 'Forensics',
-    'vaultchain': 'Blockchain',
-    'insecure blog': 'Web Exploitation',
-    'chemical reaction': 'Reverse Engineering',
-    'all is well': 'Miscellaneous',
-    'random': 'Cryptography',
-    'thooooku durai': 'Binary Exploitation',
-    'doraemon': 'Forensics',
-    'so strong ahhhh?': 'Reverse Engineering',
-    'can you': 'Web Exploitation'
+    'huntme1': 'Beginner' 
 }
 
 def escape_html(text):

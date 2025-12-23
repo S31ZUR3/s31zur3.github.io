@@ -2,6 +2,7 @@ Binary Exploitation
 Binary Exploitation
 Binary Exploitation
 Binary Exploitation
+Binary Exploitation
 ## Vulnerability Analysis
 
 The binary contains two critical **Use-After-Free (UAF)** vulnerabilities:

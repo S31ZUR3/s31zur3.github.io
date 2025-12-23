@@ -2,6 +2,7 @@ Binary Exploitation
 Binary Exploitation
 Binary Exploitation
 Binary Exploitation
+Binary Exploitation
 ## Challenge Overview
 The challenge provides a 64-bit ELF binary `chall`.
 Protections:
