@@ -11,7 +11,8 @@ FOLDER_MAP = {
     "NullCTF": "Null CTF 2025",
     "HeroCTF": "HeroCTF v7",
     "NexHuntCTF": "NexHuntCTF 2025",
-    "ShazCTF": "ShazCTF 2025"
+    "ShazCTF": "ShazCTF 2025",
+    "EschatonCTF": "EschatonCTF 2025"
 }
 
 # Fallback for manual overrides
@@ -216,12 +217,15 @@ def clean_category(line):
         'misc': 'Miscellaneous',
         'miscellaneous': 'Miscellaneous',
         'osint': 'OSINT',
-        'blockchain': 'Blockchain'
+        'blockchain': 'Blockchain',
+        'android': 'Mobile',
+        'mobile': 'Mobile'
     }
     return mapping.get(cat, cat.title())
 
 def main():
     data = {
+        "EschatonCTF 2025": {"rank": "Participated", "description": "Solved various challenges across multiple categories.", "challenges": []},
         "ShazCTF 2025": {"rank": "1st place", "description": "Achieved 1st place globally. Featured a mix of challenging security problems across all categories.", "challenges": []},
         "VUWCTF 2025": {"rank": "26th place", "description": "University-level competition with emphasis on practical security challenges.", "challenges": []},
         "Null CTF 2025": {"rank": "62nd place", "description": "Community-driven CTF with focus on real-world security scenarios.", "challenges": []},
@@ -273,7 +277,8 @@ def main():
                 
                 # 2. If no manual override, try to infer from first line
                 if not manual_category_found:
-                    if len(first_line) < 30 and first_line.lower() in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner', 'blockchain']:
+                    check_val = first_line.strip().lower().lstrip('#').strip()
+                    if len(first_line) < 30 and check_val in ['crypto', 'cryptography', 'web', 'web exploitation', 'pwn', 'binary exploitation', 'rev', 'reverse', 'reverse engineering', 'forensics', 'misc', 'miscellaneous', 'osint', 'network', 'beginner', 'blockchain', 'android', 'mobile']:
                          category = clean_category(first_line)
                          content_lines = lines[1:]
                          content = "".join(content_lines)
