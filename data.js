@@ -1,6 +1,6 @@
 const ctfData = {
     "EschatonCTF 2025": {
-        "rank": "Participated",
+        "rank": "23rd place",
         "description": "Solved various challenges across multiple categories.",
         "challenges": [
             {
