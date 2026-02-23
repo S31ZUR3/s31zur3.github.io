@@ -245,8 +245,11 @@
                 div.className = 'post-item';
                 div.onclick = () => hasWriteups ? navigateTo('ctf', ctfName) : alert('No writeups uploaded for this CTF yet.');
                 
+                const yearMatch = ctfName.match(/\d{4}/);
+                const year = yearMatch ? yearMatch[0] : '2025';
+
                 div.innerHTML = `
-                    <div class="post-date">[2025] ${ctf.rank}</div>
+                    <div class="post-date">[${year}] ${ctf.rank}</div>
                     <div class="post-title">${ctfName} ${hasWriteups ? '' : '(No Writeups)'}</div>
                     <div class="post-excerpt">${ctf.description}</div>
                 `;
