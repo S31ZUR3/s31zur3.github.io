@@ -1,5 +1,5 @@
 const ctfData = {
-    "BearCatCTF 2025": {
+    "BearCatCTF 2026": {
         "rank": "136th place",
         "description": "Engaging competition with a variety of interesting challenges in cryptography, pwn, and reverse engineering.",
         "challenges": [
@@ -95,7 +95,7 @@ const ctfData = {
             }
         ]
     },
-    "EschatonCTF 2025": {
+    "EschatonCTF 2026": {
         "rank": "23rd place",
         "description": "Solved various challenges across multiple categories.",
         "challenges": [
