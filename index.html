@@ -4,178 +4,323 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>s31zur3::void</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme.css">
+    <style>
+        @font-face {
+            font-family: 'Courier New';
+            src: local('Courier New');
+        }
+        body {
+            background-color: #111111;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        .menu-item {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid white;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        .menu-item:hover {
+            border-color: #f9a8d4;
+            color: #f9a8d4;
+        }
+        .post-item {
+            border: 1px solid white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .post-item:hover {
+            border-color: #f9a8d4;
+            box-shadow: 0 0 10px rgba(249, 168, 212, 0.2);
+        }
+        .post-date {
+            font-size: 0.875rem;
+            color: #f9a8d4;
+        }
+        .post-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .post-excerpt {
+            font-size: 0.875rem;
+            font-style: italic;
+            color: #9ca3af;
+        }
+        .challenge-item {
+            border: 1px solid white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.15s;
+        }
+        .challenge-item:hover {
+            border-color: #f9a8d4;
+        }
+        .filter-tag {
+            border: 1px solid white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .filter-tag.active, .filter-tag:hover {
+            background: #f9a8d4;
+            color: #111111;
+            border-color: #f9a8d4;
+        }
+        .tag {
+            background: #333;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        .writeup-content {
+            font-family: inherit;
+        }
+        .writeup-content h1, .writeup-content h2, .writeup-content h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: bold;
+            color: #f9a8d4;
+        }
+        .writeup-content p { margin-bottom: 1rem; }
+        .writeup-content ul, .writeup-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        .writeup-content li { margin-bottom: 0.25rem; }
+        .writeup-content code { background: #333; padding: 2px 4px; border-radius: 3px; font-size: 0.9em; }
+        .writeup-content pre { background: #000; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #333; }
+        .writeup-content pre code { background: transparent; padding: 0; }
+        .writeup-content img { max-width: 100%; height: auto; border: 1px solid #333; border-radius: 4px; margin: 1rem 0; }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 2rem;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.875rem;
+        }
+        .back-button:hover { color: #f9a8d4; }
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
-<body>
-    <div class="terminal">
-        <div class="terminal-header">
-            <div class="terminal-button"></div>
-            <div class="terminal-button"></div>
-            <div class="terminal-button"></div>
-            <div class="terminal-title">guest@terminal ~ bash</div>
+<body class="bg-[#111111] text-white">
+    <header class="py-6 px-6">
+        <div class="flex justify-start items-center">
+            <nav>
+                <ul class="flex list-none m-0 p-0 gap-6">
+                    <li><a href="#" onclick="navigateTo('')" class="text-sm hover:text-pink-300 transition-colors">Home</a></li>
+                    <li><a href="#writeups" onclick="navigateTo('writeups')" class="text-sm hover:text-pink-300 transition-colors">Writeups</a></li>
+                    <li><a href="#about" onclick="navigateTo('about')" class="text-sm hover:text-pink-300 transition-colors">About</a></li>
+                </ul>
+            </nav>
         </div>
-        <div class="terminal-body">
-            <!-- Main Menu -->
-            <div id="main-menu" class="section">
-                <div class="ascii-border">
-                    <p>┌─────────────────────────────────────────────────────────┐</p>
-                    <p>│                     s31zur3@terminal                    │</p>
-                    <p>└─────────────────────────────────────────────────────────┘</p>
-                </div>
-                
-                <div class="output">
-                    <p>patterns before exploits</p>
-                    <p style="margin-top: 10px;">select an option to navigate<span class="blink">_</span></p>
+    </header>
+
+    <div class="flex justify-center">
+        <img src="border-home1.png" alt="border" class="max-w-full">
+    </div>
+
+    <main class="mx-auto w-full max-w-4xl px-4 py-8">
+        <div id="content-container">
+            
+            <!-- Main Menu Section -->
+            <div id="main-menu" class="section active">
+                <div class="grid lg:grid-cols-2 gap-6 mb-12">
+                    <div class="flex flex-col space-y-4 rounded-lg border border-white p-4 bg-[#1a1a1a]">
+                        <img src="portrait.png" alt="Portrait" class="w-full h-auto rounded">
+                        <div>
+                            <strong class="text-lg text-pink-300">s31zur3@void</strong>
+                            <p class="text-sm mt-1 text-gray-300">Patterns before exploits. Security enthusiast & CTF player.</p>
+                        </div>
+                    </div>
+                    <div class="grid gap-6">
+                        <div class="flex flex-col space-y-2 rounded-lg border border-white p-6 bg-[#1a1a1a]">
+                            <img src="status.png" alt="Status" class="self-start">
+                            <div class="text-sm">Currently hunting flags and learning new things. Exploring the void of cybersecurity.</div>
+                        </div>
+                        <div class="flex flex-col space-y-2 rounded-lg border border-white p-6 bg-[#1a1a1a]">
+                            <img src="watching.png" alt="Watching" class="self-start">
+                            <p class="text-sm underline"><a href="#writeups" onclick="navigateTo('writeups')" class="hover:text-pink-300">Browse Recent Writeups →</a></p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="menu-box">
-                    <div class="menu-title">main menu</div>
-                    <div class="menu-item" onclick="navigateTo('writeups')">1. ctf writeups</div>
-                    <div class="menu-item" onclick="navigateTo('about')">2. about me</div>
-                    <div class="menu-item" onclick="navigateTo('ctfs')">3. competition history</div>
-                    <div class="menu-item" onclick="navigateTo('skills')">4. technical skills</div>
-                    <div class="menu-item" onclick="navigateTo('contact')">5. contact & links</div>
+                <div class="rounded-lg border border-white p-8 bg-[#1a1a1a]">
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                        <img src="writing.png" alt="" class="w-6 h-6"> Navigation
+                    </h2>
+                    <div class="grid gap-3">
+                        <div class="menu-item flex justify-between items-center px-4" onclick="navigateTo('writeups')">
+                            <span>1. ctf writeups</span>
+                            <span class="text-xs opacity-50">cd writeups/</span>
+                        </div>
+                        <div class="menu-item flex justify-between items-center px-4" onclick="navigateTo('about')">
+                            <span>2. about me</span>
+                            <span class="text-xs opacity-50">whoami</span>
+                        </div>
+                        <div class="menu-item flex justify-between items-center px-4" onclick="navigateTo('ctfs')">
+                            <span>3. competition history</span>
+                            <span class="text-xs opacity-50">cat history.log</span>
+                        </div>
+                        <div class="menu-item flex justify-between items-center px-4" onclick="navigateTo('skills')">
+                            <span>4. technical skills</span>
+                            <span class="text-xs opacity-50">ls -la bin/</span>
+                        </div>
+                        <div class="menu-item flex justify-between items-center px-4" onclick="navigateTo('contact')">
+                            <span>5. contact & links</span>
+                            <span class="text-xs opacity-50">finger guest</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Writeups List Section -->
             <div id="writeups" class="section">
-                <div class="prompt">cat writeups/</div>
-                
-                <h2>ctf writeups</h2>
-
-                <div class="search-container">
-                    <input type="text" id="ctf-search" class="search-input" placeholder="search ctfs, categories, or tags..." onkeyup="filterWriteups()">
+                <div class="flex items-center gap-3 mb-8">
+                    <img src="writing.png" alt="" class="w-8 h-8">
+                    <h2 class="text-3xl font-bold">CTF Writeups</h2>
                 </div>
                 
-                <div id="writeups-list" class="post-list">
+                <div class="mb-8">
+                    <input type="text" id="ctf-search" class="w-full bg-black border border-white rounded-lg p-3 text-white focus:border-pink-300 outline-none transition-all" placeholder="Search CTFs, categories, or tags..." onkeyup="filterWriteups()">
+                </div>
+                
+                <div id="writeups-list" class="grid lg:grid-cols-2 gap-6">
                     <!-- Dynamic Content -->
                 </div>
 
-                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+                <div class="back-button" onclick="navigateTo('')">← back to main menu</div>
             </div>
 
             <!-- CTF Detail Section -->
             <div id="ctf-detail" class="section">
-                <div class="prompt" id="ctf-prompt">ls ctf/</div>
-                
-                <h2 id="ctf-title">CTF Name</h2>
-                <p id="ctf-description" class="ctf-desc"></p>
-                <div id="ctf-stats" class="post-date"></div>
+                <h2 id="ctf-title" class="text-3xl font-bold mb-2 text-pink-300">CTF Name</h2>
+                <p id="ctf-description" class="mb-4 text-gray-400 italic"></p>
+                <div id="ctf-stats" class="text-sm mb-8 text-gray-500"></div>
 
-                <div class="separator"></div>
+                <div class="border-t border-white/20 my-8"></div>
                 
-                <div class="filter-tags" id="challenge-filters">
+                <div class="flex flex-wrap gap-3 mb-8" id="challenge-filters">
                     <!-- Dynamic Filters -->
                 </div>
 
-                <div id="challenges-list">
+                <div id="challenges-list" class="grid gap-4">
                     <!-- Dynamic Challenges -->
                 </div>
 
-                <div class="back-button" onclick="navigateTo('writeups')">back to writeups</div>
+                <div class="back-button" onclick="navigateTo('writeups')">← back to writeups</div>
             </div>
 
             <!-- Challenge Detail Section -->
             <div id="challenge-detail" class="section">
-                <div class="prompt" id="challenge-prompt">cat challenge</div>
+                <div class="mb-2 text-pink-300 text-sm font-bold uppercase tracking-widest" id="challenge-category">Category</div>
+                <h2 id="challenge-title" class="text-4xl font-bold mb-6">Challenge Title</h2>
+                <div class="flex flex-wrap gap-2 mb-8" id="challenge-tags"></div>
                 
-                <h2 id="challenge-title">Challenge Title</h2>
-                <div class="post-tags" id="challenge-tags"></div>
-                
-                <div id="challenge-content" class="writeup-content">
+                <div id="challenge-content" class="writeup-content border border-white p-8 rounded-lg bg-[#0a0a0a]">
                     <!-- Markdown Content -->
                 </div>
 
-                <div class="pagination">
-                    <button class="pagination-btn" id="prev-challenge">← previous</button>
-                    <button class="pagination-btn" id="next-challenge">next →</button>
+                <div class="flex justify-between mt-12">
+                    <button class="px-6 py-2 border border-white rounded hover:border-pink-300 hover:text-pink-300 transition-all" id="prev-challenge">← previous</button>
+                    <button class="px-6 py-2 border border-white rounded hover:border-pink-300 hover:text-pink-300 transition-all" id="next-challenge">next →</button>
                 </div>
 
-                <div class="back-button" id="back-to-ctf">back to ctf</div>
+                <div class="back-button" id="back-to-ctf">← back to ctf</div>
             </div>
 
-            <!-- Other Static Sections -->
+            <!-- Static Sections -->
             <div id="about" class="section">
-                <div class="prompt">whoami</div>
-                <h2>about me</h2>
-                <div class="info-grid">
-                    <div class="info-box">
-                        <div class="info-number">6</div>
-                        <div class="info-label">ctfs in 2025</div>
-                    </div>
-                    <div class="info-box">
-                        <div class="info-number">~100</div>
-                        <div class="info-label">challenges solved</div>
-                    </div>
-                    <div class="info-box">
-                        <div class="info-number">active</div>
-                        <div class="info-label">current status</div>
-                    </div>
-                    <div class="info-box">
-                        <div class="info-number">ghostty</div>
-                        <div class="info-label">terminal</div>
-                    </div>
-                </div>
-                <div class="text-block">
-                    <p>I'm a cybersecurity student passionate about offensive security and vulnerability research. My journey into security started with curiosity about how systems work under the hood, which quickly evolved into a deep interest in finding and exploiting weaknesses.</p>
-                </div>
-                <div class="text-block">
-                    <p>When I'm not competing in CTFs or working on projects, I'm usually reading security research papers, practicing on HackTheBox, or contributing writeups to help others learn. I believe in knowledge sharing and giving back to the security community.</p>
-                </div>
-                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+                 <div class="border border-white p-8 rounded-lg bg-[#1a1a1a]">
+                    <h2 class="text-2xl font-bold mb-6 text-pink-300">whoami</h2>
+                    <p class="mb-4">Security enthusiast and CTF player passionate about dissecting systems and understanding the underlying patterns of vulnerabilities.</p>
+                    <p class="mb-4">I enjoy working on:</p>
+                    <ul class="list-disc ml-6 space-y-2">
+                        <li>Binary Exploitation & Reverse Engineering</li>
+                        <li>Web Application Security</li>
+                        <li>Blockchain Security</li>
+                        <li>Developing security tools and automations</li>
+                    </ul>
+                 </div>
+                 <div class="back-button" onclick="navigateTo('')">← back to main menu</div>
             </div>
 
             <div id="ctfs" class="section">
-                <div class="prompt">ls competitions/</div>
-                <h2>competition history</h2>
-                <div id="ctfs-list">
-                    <!-- Dynamic Content -->
+                <div class="border border-white p-8 rounded-lg bg-[#1a1a1a]">
+                   <h2 class="text-2xl font-bold mb-6 text-pink-300">Competition History</h2>
+                   <div id="ctfs-list" class="space-y-6">
+                       <!-- Dynamic -->
+                   </div>
                 </div>
-                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
-            </div>
+                <div class="back-button" onclick="navigateTo('')">← back to main menu</div>
+           </div>
 
-            <div id="skills" class="section">
-                <div class="prompt">cat /etc/skills.conf</div>
-                <h2>technical skills</h2>
-                <div class="skills-grid">
-                    <div class="skill-box">web exploitation</div>
-                    <div class="skill-box">reverse engineering</div>
-                    <div class="skill-box">cryptography</div>
-                    <div class="skill-box">digital forensics</div>
-                    <div class="skill-box">python</div>
-                    <div class="skill-box">c/c++</div>
-                    <div class="skill-box">assembly</div>
-                    <div class="skill-box">linux</div>
-                    <div class="skill-box">burp suite</div>
-                    <div class="skill-box">ghidra</div>
-                    <div class="skill-box">gdb</div>
-                    <div class="skill-box">nmap</div>
+           <div id="skills" class="section">
+                <div class="border border-white p-8 rounded-lg bg-[#1a1a1a]">
+                    <h2 class="text-2xl font-bold mb-6 text-pink-300">Technical Skills</h2>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-bold mb-3 text-white border-b border-white/20 pb-1">Languages</h3>
+                            <p class="text-gray-300">Python, C/C++, JavaScript, Assembly (x64), Go, Solidity</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-3 text-white border-b border-white/20 pb-1">Tools</h3>
+                            <p class="text-gray-300">Ghidra, GDB, Burp Suite, Docker, Wireshark, Metasploit</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+                <div class="back-button" onclick="navigateTo('')">← back to main menu</div>
             </div>
 
             <div id="contact" class="section">
-                <div class="prompt">./connect.sh</div>
-                <h2>contact & links</h2>
-                <div class="text-block">
-                    <p>Interested in collaborating on security research or CTF competitions? Feel free to reach out through any of the channels below.</p>
+                <div class="border border-white p-8 rounded-lg bg-[#1a1a1a]">
+                    <h2 class="text-2xl font-bold mb-6 text-pink-300">Contact & Links</h2>
+                    <div class="space-y-4">
+                        <p>Find me on the following platforms:</p>
+                        <ul class="space-y-2">
+                            <li>GitHub: <a href="https://github.com/s31zur3" class="underline hover:text-pink-300">s31zur3</a></li>
+                            <li>Twitter: <a href="#" class="underline hover:text-pink-300">@s31zur3</a></li>
+                            <li>Discord: <span class="text-gray-400">s31zur3</span></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="contact-list">
-                    <div class="contact-item"><a href="https://github.com/S31ZUR3" target="_blank">github.com/S31ZUR3</a></div>
-                    <div class="contact-item"><a href="https://linkedin.com/in/sai-prapanch-h" target="_blank">linkedin.com/in/sai-prapanch-h</a></div>
-                    <div class="contact-item"><a href="mailto:saiprapanch2006@gmail.com">saiprapanch2006@gmail.com</a></div>
-                </div>
-                <div class="separator"></div>
-                <div class="output" style="text-align: center;">
-                    <p>flag{thanks_for_visiting_my_terminal}</p>
-                    <p style="margin-top: 5px;">© 2025 | all writeups released under creative commons</p>
-                </div>
-                <div class="back-button" onclick="navigateTo('')">back to main menu</div>
+                <div class="back-button" onclick="navigateTo('')">← back to main menu</div>
             </div>
 
         </div>
+    </main>
+
+    <div class="flex justify-center mt-12">
+        <img src="border-home1.png" alt="border" class="max-w-full">
     </div>
+
+    <footer class="py-16 px-6 text-center text-gray-500">
+        <p class="text-xs">Made with ୨ <a href="https://github.com/danapixels/digio-theme" target="_blank" class="underline hover:text-white">Digio</a> ୧</p>
+        <p class="text-[10px] mt-2 opacity-50">&copy; 2026 s31zur3::void</p>
+    </footer>
 
     <script src="data.js"></script>
     <script>
@@ -188,15 +333,13 @@
         }
 
         function handleRoute() {
-            const hash = window.location.hash.substring(1); // Remove #
+            const hash = window.location.hash.substring(1);
             const parts = hash.split('/').map(decodeURIComponent);
             const view = parts[0] || 'main-menu';
 
-            // Hide all sections
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 
-            // Show specific view
-            if (view === 'main-menu') {
+            if (view === 'main-menu' || view === '') {
                 document.getElementById('main-menu').classList.add('active');
             } else if (view === 'writeups') {
                 document.getElementById('writeups').classList.add('active');
@@ -207,23 +350,16 @@
             } else if (view === 'challenge') {
                 document.getElementById('challenge-detail').classList.add('active');
                 renderChallengeDetail(parts[1], parts[2]);
-            } else if (view === 'about') {
-                document.getElementById('about').classList.add('active');
-            } else if (view === 'ctfs') {
-                document.getElementById('ctfs').classList.add('active');
-                renderCompetitions();
             } else if (document.getElementById(view)) {
-                // Fallback for static sections like 'contact'
                 document.getElementById(view).classList.add('active');
+                if (view === 'ctfs') renderCompetitions();
             } else {
-                // Default to main menu
                 document.getElementById('main-menu').classList.add('active');
             }
             
             window.scrollTo(0, 0);
         }
 
-        // Logic
         function renderWriteups() {
             const list = document.getElementById('writeups-list');
             list.innerHTML = '';
@@ -232,26 +368,23 @@
 
             Object.keys(ctfData).forEach(ctfName => {
                 const ctf = ctfData[ctfName];
-                // Simple search logic
                 if (filter && !ctfName.toLowerCase().includes(filter) && !ctf.description.toLowerCase().includes(filter)) {
                     return; 
                 }
 
-                // Check if CTF has challenges (writeups available)
                 const hasWriteups = ctf.challenges && ctf.challenges.length > 0;
-                
-                // Only showing CTFs that exist in data or have descriptions
                 const div = document.createElement('div');
-                div.className = 'post-item';
-                div.onclick = () => hasWriteups ? navigateTo('ctf', ctfName) : alert('No writeups uploaded for this CTF yet.');
+                div.className = 'post-item bg-[#1a1a1a]';
+                div.onclick = () => hasWriteups ? navigateTo('ctf', ctfName) : alert('No writeups yet.');
                 
                 const yearMatch = ctfName.match(/\d{4}/);
-                const year = yearMatch ? yearMatch[0] : '2025';
+                const year = yearMatch ? yearMatch[0] : '2026';
 
                 div.innerHTML = `
-                    <div class="post-date">[${year}] ${ctf.rank}</div>
-                    <div class="post-title">${ctfName} ${hasWriteups ? '' : '(No Writeups)'}</div>
+                    <div class="post-date">/ ${year} / ${ctf.rank}</div>
+                    <div class="post-title">${ctfName} ${hasWriteups ? '' : '(Empty)'}</div>
                     <div class="post-excerpt">${ctf.description}</div>
+                    <div class="text-xs underline text-white mt-auto">View challenges →</div>
                 `;
                 list.appendChild(div);
             });
@@ -263,16 +396,17 @@
 
         function renderCompetitions() {
             const list = document.getElementById('ctfs-list');
+            if (!list) return;
             list.innerHTML = '';
 
             Object.keys(ctfData).forEach(ctfName => {
                 const ctf = ctfData[ctfName];
                 const div = document.createElement('div');
-                div.className = 'ctf-item';
+                div.className = 'border-b border-white/10 pb-4';
                 div.innerHTML = `
-                    <div class="ctf-name">${ctfName}</div>
-                    <div class="ctf-desc">${ctf.description}</div>
-                    <div class="ctf-rank">${ctf.rank}</div>
+                    <div class="font-bold text-pink-300">${ctfName}</div>
+                    <div class="text-sm text-gray-400">${ctf.description}</div>
+                    <div class="text-xs mt-1 text-white opacity-60">Result: ${ctf.rank}</div>
                 `;
                 list.appendChild(div);
             });
@@ -283,14 +417,12 @@
             if (!ctf) return navigateTo('writeups');
 
             document.getElementById('ctf-title').textContent = ctfName;
-            document.getElementById('ctf-prompt').textContent = `ls ${ctfName.toLowerCase().replace(/ /g, '_')}/`;
             document.getElementById('ctf-description').textContent = ctf.description;
             document.getElementById('ctf-stats').textContent = `Rank: ${ctf.rank} | Writeups: ${ctf.challenges.length}`;
 
             const list = document.getElementById('challenges-list');
             list.innerHTML = '';
 
-            // Unique categories for filter
             const categories = new Set(ctf.challenges.map(c => c.category));
             const filterContainer = document.getElementById('challenge-filters');
             filterContainer.innerHTML = '<span class="filter-tag active" onclick="filterChallenges(this, \'all\')">All</span>';
@@ -302,19 +434,16 @@
                 filterContainer.appendChild(span);
             });
 
-            // Store current CTF challenges for local filtering
-            window.currentChallenges = ctf.challenges;
-
             ctf.challenges.forEach(chall => {
                 const div = document.createElement('div');
-                div.className = 'challenge-item';
+                div.className = 'challenge-item bg-[#1a1a1a]';
                 div.dataset.category = chall.category;
                 div.onclick = () => navigateTo('challenge', ctfName, chall.id);
                 
                 div.innerHTML = `
-                    <div class="challenge-title">${chall.title}</div>
+                    <div class="challenge-title font-bold">${chall.title}</div>
                     <div class="challenge-meta">
-                        <span class="category-tag">${chall.category}</span>
+                        <span class="tag bg-pink-300 text-black font-bold">${chall.category}</span>
                     </div>
                 `;
                 list.appendChild(div);
@@ -322,11 +451,9 @@
         }
 
         function filterChallenges(element, category) {
-            // Update UI
             document.querySelectorAll('#challenge-filters .filter-tag').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
 
-            // Filter List
             const items = document.querySelectorAll('.challenge-item');
             items.forEach(item => {
                 if (category === 'all' || item.dataset.category === category) {
@@ -347,14 +474,13 @@
             const challenge = ctf.challenges[challengeIndex];
 
             document.getElementById('challenge-title').textContent = challenge.title;
-            document.getElementById('challenge-prompt').textContent = `cat ${challengeId}.md`;
+            document.getElementById('challenge-category').textContent = challenge.category;
             
             const tagsContainer = document.getElementById('challenge-tags');
-            tagsContainer.innerHTML = challenge.tags.map(t => `<span class="tag">${t}</span>`).join('');
+            tagsContainer.innerHTML = challenge.tags.map(t => `<span class="tag"># ${t}</span>`).join('');
 
             document.getElementById('challenge-content').innerHTML = challenge.writeup;
             
-            // Pagination Logic
             const prevBtn = document.getElementById('prev-challenge');
             const nextBtn = document.getElementById('next-challenge');
             
@@ -372,12 +498,10 @@
                 nextBtn.disabled = true;
             }
             
-            // Update back button
             const backBtn = document.getElementById('back-to-ctf');
             backBtn.onclick = () => navigateTo('ctf', ctfName);
         }
 
-        // Initialize
         window.addEventListener('hashchange', handleRoute);
         window.addEventListener('load', handleRoute);
     </script>

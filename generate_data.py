@@ -13,7 +13,8 @@ FOLDER_MAP = {
     "NexHuntCTF": "NexHuntCTF 2025",
     "ShazCTF": "ShazCTF 2025",
     "EschatonCTF": "EschatonCTF 2026",
-    "BearCatCTF": "BearCatCTF 2026"
+    "BearCatCTF": "BearCatCTF 2026",
+    "Netrunner": "Netrunner 2026"
 }
 
 # Fallback for manual overrides
@@ -226,6 +227,7 @@ def clean_category(line):
 
 def main():
     data = {
+        "Netrunner 2026": {"rank": "3rd place", "description": "Highly competitive CTF organized by Kurukshetra CEG. Solved a diverse set of challenges in Web, Pwn, and Cryptography.", "challenges": []},
         "BearCatCTF 2026": {"rank": "136th place", "description": "Engaging competition with a variety of interesting challenges in cryptography, pwn, and reverse engineering.", "challenges": []},
         "EschatonCTF 2026": {"rank": "23rd place", "description": "Solved various challenges across multiple categories.", "challenges": []},
         "ShazCTF 2025": {"rank": "1st place", "description": "Achieved 1st place globally. Featured a mix of challenging security problems across all categories.", "challenges": []},
