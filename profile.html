@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>profile :: s31zur3</title>
+    <meta name="description" content="Profile, skills & socials.">
+    <link rel="icon" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="lgrid" aria-hidden="true"></div>
+
+    <header class="container">
+        <a class="logo" href="index.html">s31zur3<span class="dot">::</span>void</a>
+        <nav>
+            <a href="index.html">home</a>
+            <a href="archive.html">writeups</a>
+            <a href="#" class="active">skills</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div class="kicker">~/void/profile $</div>
+            <h1 class="rx" id="name">s31zur3</h1>
+            <p class="tagline">security enthusiast · ctf player · patterns before exploits</p>
+        </section>
+
+        <section class="section" id="profile">
+            <div class="sec-head"><span class="num">01</span><span class="rx">profile</span></div>
+            <div class="profile-hero">
+                <img class="avatar" src="portrait.png" alt="s31zur3">
+                <div class="card about-text" style="flex:1; min-width:260px;">
+                    <p>
+                        Security enthusiast hunting flags in the void. I spend most of my time reading
+                        <strong>patterns before exploits</strong> — reverse engineering binaries, breaking web apps,
+                        and cracking crypto that the organizers thought was "secure".
+                    </p>
+                    <p>
+                        Best result so far: <strong class="badge-rank">1st place globally</strong> at ShazCTF 2025.
+                        All writeups live in the <a href="archive.html">archive</a>.
+                    </p>
+                </div>
+            </div>
+            <div class="profile-facts">
+                <div class="fact"><b>country</b><span>India</span></div>
+                <div class="fact"><b>discord</b><span>@s31zur3_45403</span></div>
+                <div class="fact"><b>focus</b><span>reverse engineering · pwn · crypto</span></div>
+                <div class="fact"><b>status</b><span>playing ctfs · tinkering</span></div>
+            </div>
+        </section>
+
+        <section class="section" id="socials">
+            <div class="sec-head"><span class="num">02</span><span class="rx">socials</span></div>
+            <div class="socgrid" id="socgrid"></div>
+        </section>
+
+        <section class="section" id="skills">
+            <div class="sec-head"><span class="num">03</span><span class="rx">skills</span></div>
+            <div class="card">
+                <div class="skills" id="pills"></div>
+                <div class="bars" id="bars"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>built with <span class="heart">anime.js</span> · &copy; <span id="year"></span> s31zur3</p>
+    </footer>
+
+    <script>
+        /* ---------- SOCIALS: edit these to point at your real profiles ---------- */
+        const SOCIALS = [
+            { tag: 'github',   handle: 'github.com/S31ZUR3',   href: 'https://github.com/S31ZUR3' },
+            { tag: 'discord',  handle: '@s31zur3_45403',       copy: true },
+            { tag: 'ctftime',  handle: 'add your ctftime.',    href: '' },
+            { tag: 'linkedin', handle: 'add your linkedin.',   href: '' }
+        ];
+
+        /* ---------- skills ---------- */
+        const GROUPS = [
+            ['categories', ['Reverse Engineering', 'Binary Exploitation', 'Web Security', 'Cryptography', 'Blockchain', 'Forensics']],
+            ['languages',  ['Python', 'C / C++', 'Assembly (x64)', 'JavaScript', 'Go', 'Solidity']],
+            ['tools',      ['Ghidra', 'GDB', 'Burp Suite', 'Docker', 'Wireshark', 'pwntools']]
+        ];
+        const BARS = [
+            ['reverse engineering', 78], ['binary exploitation', 72], ['web security', 70],
+            ['cryptography', 66], ['blockchain', 48], ['forensics', 52]
+        ];
+
+        /* ---------- letterized headline / headings ---------- */
+        const letterize = el => {
+            const text = el.textContent;
+            el.textContent = '';
+            const n = text.length;
+            text.split('').forEach((ch, i) => {
+                const s = document.createElement('span');
+                s.className = 'lr';
+                s.textContent = ch === ' ' ? '\u00A0' : ch;
+                s.style.setProperty('--t', Math.abs(i - (n - 1) / 2));
+                el.appendChild(s);
+            });
+        };
+        document.querySelectorAll('.rx').forEach(letterize);
+
+        /* ---------- letter grid background ---------- */
+        const GLYPHS = 'S31ZUR3::VOID/CTF/';
+        const CELL = 36;
+        const gridEl = document.getElementById('lgrid');
+        const buildGrid = () => {
+            gridEl.style.setProperty('--cols', Math.max(18, Math.ceil(innerWidth / CELL)));
+            const rows = Math.max(14, Math.ceil(innerHeight / CELL));
+            const cc = (Math.ceil(innerWidth / CELL) - 1) / 2, rc = (rows - 1) / 2;
+            let html = '';
+            for (let r = 0; r < rows; r++)
+                for (let c = 0; c < Math.ceil(innerWidth / CELL); c++)
+                    html += `<span class="g" style="--t:${Math.abs(r - rc) + Math.abs(c - cc)}">${GLYPHS[(r + c) % GLYPHS.length]}</span>`;
+            gridEl.innerHTML = html;
+        };
+        buildGrid();
+        addEventListener('resize', buildGrid);
+
+        /* ---------- socials ---------- */
+        const socGrid = document.getElementById('socgrid');
+        SOCIALS.forEach(s => {
+            const a = document.createElement('a');
+            a.className = 'soc';
+            a.href = s.copy ? '#' : (s.href || '#');
+            a.innerHTML = `<span class="ic">${s.tag.slice(0, 1)}</span><span class="cap">${s.tag}</span><span class="h">${s.handle}</span>`;
+            if (!s.href && !s.copy) { a.classList.add('todo'); a.tabIndex = -1; }
+            if (s.copy) a.addEventListener('click', e => {
+                e.preventDefault();
+                if (navigator.clipboard) navigator.clipboard.writeText(s.handle.replace(/^@/, ''));
+                a.dataset.copied = '1';
+                setTimeout(() => delete a.dataset.copied, 1200);
+            });
+            socGrid.appendChild(a);
+        });
+
+        /* ---------- skills pills + bars ---------- */
+        const pills = document.getElementById('pills');
+        GROUPS.forEach(([label, items]) => {
+            pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill cat', textContent: label }));
+            items.forEach(s => pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill', textContent: s })));
+        });
+        document.getElementById('bars').innerHTML = BARS.map(([name, w]) =>
+            `<div class="bar"><span class="t">${name}</span><div class="track"><div class="fill" style="--w:${w}%"></div></div><span class="v">${w}%</span></div>`
+        ).join('');
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

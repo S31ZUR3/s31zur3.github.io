@@ -46,6 +46,7 @@ header {
 .logo { font-weight: 700; letter-spacing: .05em; font-size: 15px; color: var(--text); }
 .logo .dot { color: var(--accent); }
 nav { display: flex; gap: 18px; font-size: 13px; }
+nav a.active { color: var(--accent); }
 
 /* ---------- hero ---------- */
 .hero { padding: 72px 0 40px; }
@@ -190,3 +191,69 @@ input:focus { border-color: var(--accent); }
 .badge-rank { color: var(--ok); }
 
 footer .heart { color: var(--accent); }
+
+/* ---------- letter grid background (profile) ---------- */
+#lgrid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  display: grid; grid-template-columns: repeat(var(--cols, 40), 1fr); grid-auto-rows: 1fr;
+  overflow: hidden; opacity: .16;
+}
+#lgrid .g {
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(9px, 1.4vw, 15px); line-height: 1;
+  animation: gskip 2.8s ease-in-out infinite alternate;
+  animation-delay: calc(var(--t) * 20ms);
+}
+@keyframes gskip {
+  from { transform: scale(.55); opacity: .2;  color: var(--dim);    letter-spacing: .12em; }
+  to   { transform: scale(1);   opacity: .95; color: var(--accent); letter-spacing: normal; }
+}
+
+/* ---------- letterized headings ---------- */
+.rx { white-space: pre; }
+.rx .lr { display: inline-block; animation: rxp .9s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--t) * 28ms); }
+@keyframes rxp { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ---------- profile page ---------- */
+.profile-hero { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.avatar {
+  width: 128px; height: 128px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--border); box-shadow: 0 0 28px var(--accent-dim);
+  flex: 0 0 auto;
+}
+.profile-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.fact {
+  display: flex; gap: 8px; font-size: 13px; color: var(--muted);
+  border: 1px solid var(--border); background: var(--bg-card); border-radius: 10px; padding: 8px 12px;
+}
+.fact b { color: var(--text); font-weight: 600; }
+
+/* social buttons */
+.socgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.soc {
+  position: relative;
+  display: flex; flex-direction: column; gap: 5px;
+  border: 1px solid var(--border); background: var(--bg-card); border-radius: 12px; padding: 14px 16px;
+  transition: border-color .18s, transform .18s, background .18s;
+  text-decoration: none;
+}
+.soc:hover { border-color: var(--accent); transform: translateY(-2px); background: var(--accent-dim); }
+.soc .ic { font-size: 20px; color: var(--accent); }
+.soc .cap { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .12em; }
+.soc .ic { font-size: 22px; }
+.soc .h { font-size: 14px; color: var(--text); word-break: break-all; }
+.soc.todo { opacity: .55; pointer-events: none; }
+.soc[data-copied]::after { content: "copied!"; position: absolute; top: 10px; right: 14px; font-size: 11px; color: var(--accent); }
+
+/* skill bars */
+.bars { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+.bar { display: grid; grid-template-columns: 160px 1fr 38px; align-items: center; gap: 12px; font-size: 12.5px; }
+.bar .t  { color: var(--muted); }
+.bar .v  { color: var(--dim); text-align: right; }
+.bar .track { height: 6px; border-radius: 99px; background: var(--bg-soft); border: 1px solid var(--border); overflow: hidden; }
+.bar .fill {
+  height: 100%; width: var(--w);
+  background: linear-gradient(90deg, #150485, var(--accent));
+  animation: grow 1.3s ease-out both;
+}
+@keyframes grow { from { width: 0; } }
