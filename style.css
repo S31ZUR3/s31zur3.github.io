@@ -45,8 +45,14 @@ header {
 }
 .logo { font-weight: 700; letter-spacing: .05em; font-size: 15px; color: var(--text); }
 .logo .dot { color: var(--accent); }
-nav { display: flex; gap: 18px; font-size: 13px; }
-nav a.active { color: var(--accent); }
+nav {
+  display: flex; gap: 4px; font-size: 13px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--bg-card); padding: 4px 6px;
+}
+nav a { padding: 5px 12px; border-radius: 999px; color: var(--muted); }
+nav a:hover { color: var(--text); border-bottom-color: transparent; }
+nav a.active { color: var(--accent); background: var(--accent-dim); }
 
 /* ---------- hero ---------- */
 .hero { padding: 72px 0 40px; }
@@ -255,14 +261,5 @@ footer .heart { color: var(--accent); }
 }
 @keyframes grow { from { width: 0; } }
 
-/* ---------- MGS name logo (profile hero) ---------- */
-.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-#mgs { display: block; margin: 18px auto 8px; width: min(900px, 96vw); }
-#mgs svg { width: 100%; height: auto; display: block; overflow: visible; filter: drop-shadow(0 0 18px rgba(249, 193, 0, .28)); }
-#mgs .st path { fill: #F9C100; }
-#mgs .stL { animation: slimL .9s cubic-bezier(.19, 1, .22, 1) both; }
-#mgs .stR { animation: slimR .9s cubic-bezier(.19, 1, .22, 1) both; }
-@keyframes slimL { from { transform: translateX(-900px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes slimR { from { transform: translateX(900px);  opacity: 0; } to { transform: none; opacity: 1; } }
-#mgs .gl { transform-box: fill-box; transform-origin: center; opacity: 0; animation: glin .45s ease-out both; }
-@keyframes glin { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* ---------- profile hero ---------- */
+.names { font-size: clamp(35px, 6vw, 48px); font-weight: 700; line-height: 1.05; margin: 14px 0 10px; }
