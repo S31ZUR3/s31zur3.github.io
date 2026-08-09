@@ -1,0 +1,1 @@
+const SKILLS = [["categories", ["Reverse Engineering", "Binary Exploitation", "Web Security", "Cryptography", "Blockchain", "Forensics"]], ["languages", ["Python", "C / C++", "Assembly (x64)", "JavaScript", "Go", "Solidity"]], ["tools", ["Ghidra", "GDB", "Burp Suite", "Docker", "Wireshark", "pwntools"]]]

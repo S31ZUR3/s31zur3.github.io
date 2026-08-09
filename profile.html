@@ -108,6 +108,7 @@
         <p>built with <span class="heart">anime.js</span> · &copy; <span id="year"></span> s31zur3</p>
     </footer>
 
+    <script src="skills.js"></script>
     <script>
         /* ---------- SOCIALS: edit these to point at your real profiles ---------- */
         const SOCIALS = [
@@ -117,16 +118,16 @@
             { tag: 'linkedin', handle: 'add your linkedin.',   href: '' }
         ];
 
-        /* ---------- skills ---------- */
-        const GROUPS = [
-            ['categories', ['Reverse Engineering', 'Binary Exploitation', 'Web Security', 'Cryptography', 'Blockchain', 'Forensics']],
-            ['languages',  ['Python', 'C / C++', 'Assembly (x64)', 'JavaScript', 'Go', 'Solidity']],
-            ['tools',      ['Ghidra', 'GDB', 'Burp Suite', 'Docker', 'Wireshark', 'pwntools']]
-        ];
+        /* ---------- skills pills + bars ---------- */
         const BARS = [
             ['reverse engineering', 78], ['binary exploitation', 72], ['web security', 70],
             ['cryptography', 66], ['blockchain', 48], ['forensics', 52]
         ];
+        const pills = document.getElementById('pills');
+        SKILLS.forEach(([label, items]) => {
+            pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill cat', textContent: label }));
+            items.forEach(s => pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill', textContent: s })));
+        });
 
         /* ---------- letterized headline / headings ---------- */
         const letterize = el => {
@@ -178,12 +179,6 @@
             socGrid.appendChild(a);
         });
 
-        /* ---------- skills pills + bars ---------- */
-        const pills = document.getElementById('pills');
-        GROUPS.forEach(([label, items]) => {
-            pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill cat', textContent: label }));
-            items.forEach(s => pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill', textContent: s })));
-        });
         document.getElementById('bars').innerHTML = BARS.map(([name, w]) =>
             `<div class="bar"><span class="t">${name}</span><div class="track"><div class="fill" style="--w:${w}%"></div></div><span class="v">${w}%</span></div>`
         ).join('');

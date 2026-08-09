@@ -270,14 +270,6 @@ def main():
                     category = MANUAL_CATEGORIES[title_lower]
                     manual_category_found = True
                     print(f"    [OVERRIDE] Applied manual category '{category}' for '{title}'")
-                else:
-                    # Fallback to manual map using 'in' operator for partial matches
-                    for k, v in MANUAL_CATEGORIES.items():
-                        if k in title_lower:
-                            category = v
-                            manual_category_found = True
-                            print(f"    [OVERRIDE-PARTIAL] Applied manual category '{category}' for '{title}'")
-                            break
                 
                 # 2. If no manual override, try to infer from first line
                 if not manual_category_found:

@@ -185,9 +185,6 @@ input:focus { border-color: var(--accent); }
 /* empty */
 .empty { color: var(--dim); font-style: italic; padding: 20px 0; }
 
-/* writeup pre hide */
-.js-hide { opacity: 0; }
-
 .badge-rank { color: var(--ok); }
 
 footer .heart { color: var(--accent); }
