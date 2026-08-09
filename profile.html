@@ -148,12 +148,13 @@
         const CELL = 36;
         const gridEl = document.getElementById('lgrid');
         const buildGrid = () => {
-            gridEl.style.setProperty('--cols', Math.max(18, Math.ceil(innerWidth / CELL)));
+            const cols = Math.max(18, Math.ceil(innerWidth / CELL));
             const rows = Math.max(14, Math.ceil(innerHeight / CELL));
-            const cc = (Math.ceil(innerWidth / CELL) - 1) / 2, rc = (rows - 1) / 2;
+            const cc = (cols - 1) / 2, rc = (rows - 1) / 2;
+            gridEl.style.setProperty('--cols', cols);
             let html = '';
             for (let r = 0; r < rows; r++)
-                for (let c = 0; c < Math.ceil(innerWidth / CELL); c++)
+                for (let c = 0; c < cols; c++)
                     html += `<span class="g" style="--t:${Math.abs(r - rc) + Math.abs(c - cc)}">${GLYPHS[(r + c) % GLYPHS.length]}</span>`;
             gridEl.innerHTML = html;
         };
