@@ -16,18 +16,16 @@
             --accent-glow: rgba(249, 168, 212, 0.25);
         }
 
-        /* Custom spotlight grid glow */
-        #lgrid::after {
-            content: '';
-            position: absolute;
+        /* Custom spotlight grid canvas styling */
+        #lgrid {
+            display: block !important;
+            position: fixed;
             inset: 0;
-            background: radial-gradient(
-                450px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px),
-                rgba(249, 168, 212, 0.15),
-                transparent 45%
-            );
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 0;
             pointer-events: none;
-            z-index: 2;
+            opacity: 1 !important;
         }
 
         /* Grid Layout */
@@ -466,7 +464,7 @@
     </style>
 </head>
 <body>
-    <div id="lgrid" aria-hidden="true"></div>
+    <canvas id="lgrid" aria-hidden="true"></canvas>
 
     <header class="container">
         <a class="logo" href="index.html">s31zur3<span class="dot">::</span>void</a>
@@ -635,8 +633,8 @@
 
         /* ---------- RATINGS DATA ---------- */
         const BARS = [
-            ['reverse engineering', 78], ['binary exploitation', 72], ['web security', 70],
-            ['cryptography', 66], ['blockchain', 48], ['forensics', 52]
+            ['reverse engineering', 65], ['binary exploitation', 45], ['web security', 50],
+            ['cryptography', 30], ['forensics', 50]
         ];
 
         /* ---------- DIAGNOSTIC DICTIONARY ---------- */
@@ -978,34 +976,61 @@
         };
         document.querySelectorAll('.rx').forEach(letterize);
 
-        /* ---------- LETTER GRID BACKGROUND ---------- */
+        /* ---------- LETTER GRID BACKGROUND (CANVAS RENDERER) ---------- */
         const GLYPHS = 'S31ZUR3::VOID/CTF/';
-        const CELL = 36;
-        const gridEl = document.getElementById('lgrid');
-        let gridTimer;
-        
-        const buildGrid = () => {
-            const cols = Math.min(Math.ceil(innerWidth / CELL), 60);
-            const rows = Math.min(Math.ceil(innerHeight / CELL), 40);
-            if (gridEl.dataset.cols == cols && gridEl.dataset.rows == rows) return;
-            gridEl.dataset.cols = cols;
-            gridEl.dataset.rows = rows;
-            gridEl.style.setProperty('--cols', cols);
-            const cx = (cols - 1) / 2, cy = (rows - 1) / 2;
-            let html = '';
-            for (let r = 0; r < rows; r++)
-                for (let c = 0; c < cols; c++)
-                    html += `<span class="g" style="--t:${Math.abs(r - cy) + Math.abs(c - cx)}">${GLYPHS[(r + c) % GLYPHS.length]}</span>`;
-            gridEl.innerHTML = html;
-        };
-        buildGrid();
-        addEventListener('resize', () => { clearTimeout(gridTimer); gridTimer = setTimeout(buildGrid, 120); });
+        const CELL = 54;
+        const canvas = document.getElementById('lgrid');
+        const ctx = canvas.getContext('2d');
+        let W, H, cols, rows, time = 0;
+        let mouseX = -1000, mouseY = -1000;
 
-        // Spotlight mouse tracker
+        const resize = () => {
+            W = canvas.width = innerWidth;
+            H = canvas.height = innerHeight;
+            cols = Math.ceil(W / CELL);
+            rows = Math.ceil(H / CELL);
+        };
+        resize();
+        addEventListener('resize', resize);
+
         addEventListener('mousemove', e => {
-            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
+
+        (function draw() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.font = '13px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const cx = cols / 2;
+            const cy = rows / 2;
+            time += 0.015;
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const x = c * CELL + CELL / 2;
+                    const y = r * CELL + CELL / 2;
+                    
+                    const dx = x - mouseX;
+                    const dy = y - mouseY;
+                    const distToMouse = Math.sqrt(dx * dx + dy * dy);
+                    
+                    const distFromCenter = Math.abs(r - cy) + Math.abs(c - cx);
+                    const baseAlpha = 0.08 + 0.16 * (Math.sin(time + distFromCenter * 0.15) * 0.5 + 0.5);
+                    const mouseGlow = Math.max(0, 1 - distToMouse / 350);
+                    
+                    // Multiply glow and opacity for premium responsive lighting
+                    const finalAlpha = 0.16 * (baseAlpha + 0.8 * mouseGlow);
+                    ctx.fillStyle = `rgba(249, 168, 212, ${finalAlpha})`;
+                    
+                    const char = GLYPHS[(r + c) % GLYPHS.length];
+                    ctx.fillText(char, x, y);
+                }
+            }
+            requestAnimationFrame(draw);
+        })();
 
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
