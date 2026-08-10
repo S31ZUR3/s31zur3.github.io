@@ -70,16 +70,16 @@ nav {
   background: rgba(10, 10, 12, 0.5); padding: 4px;
 }
 nav a {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  padding: 0 14px;
+  padding: 5px 14px;
   border-radius: 8px;
   color: var(--muted);
   transition: all 0.2s ease;
-  box-sizing: border-box;
   line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
 }
 nav a:hover { color: var(--text); border-bottom-color: transparent; background: rgba(255, 255, 255, 0.05); }
 nav a.active { color: var(--accent); background: var(--accent-dim); }

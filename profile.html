@@ -264,24 +264,22 @@
         }
 
         .skill-items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 8px;
-            width: 100%;
+            min-height: 40px;
         }
 
         .skill-items-grid .pill {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            height: 38px;
-            padding: 0 12px;
+            white-space: nowrap;
+            height: 32px;
+            padding: 0 14px;
             box-sizing: border-box;
             border-radius: 8px;
             font-size: 12.5px;
-            margin: 0;
-            width: 100%;
             transition: all 0.2s ease;
         }
 
