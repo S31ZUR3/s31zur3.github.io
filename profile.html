@@ -264,13 +264,24 @@
         }
 
         .skill-items-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 8px;
-            min-height: 40px;
+            width: 100%;
         }
 
         .skill-items-grid .pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 38px;
+            padding: 0 12px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            font-size: 12.5px;
+            margin: 0;
+            width: 100%;
             transition: all 0.2s ease;
         }
 
@@ -467,11 +478,11 @@
     <canvas id="lgrid" aria-hidden="true"></canvas>
 
     <header class="container">
-        <a class="logo" href="index.html">s31zur3<span class="dot">::</span>void</a>
+        <a class="logo" href="./">s31zur3<span class="dot">::</span>void</a>
         <nav>
-            <a href="index.html">home</a>
-            <a href="profile.html" class="active">skills</a>
-            <a href="archive.html">writeups</a>
+            <a href="./">home</a>
+            <a href="profile" class="active">skills</a>
+            <a href="archive">writeups</a>
         </nav>
     </header>
 
@@ -565,7 +576,7 @@
                         <p>
                             Best result so far: <strong class="badge-rank">1st place globally</strong> at ShazCTF 2025. 
                             I enjoy building tools, designing secure systems, and solving complex security challenges.
-                            All writeups live in the <a href="archive.html" style="color: var(--accent); border-bottom: 1px dashed var(--accent);">archive</a>.
+                            All writeups live in the <a href="archive" style="color: var(--accent); border-bottom: 1px dashed var(--accent);">archive</a>.
                         </p>
                     </div>
                 </div>
