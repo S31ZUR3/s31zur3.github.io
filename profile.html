@@ -7,6 +7,463 @@
     <meta name="description" content="Profile, skills & socials.">
     <link rel="icon" href="favicon.png">
     <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --term-green: #34d399;
+            --term-red: #ef4444;
+            --term-yellow: #f59e0b;
+            --neon-blue: #38bdf8;
+            --accent-glow: rgba(249, 168, 212, 0.25);
+        }
+
+        /* Custom spotlight grid glow */
+        #lgrid::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                450px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px),
+                rgba(249, 168, 212, 0.15),
+                transparent 45%
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Grid Layout */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Avatar & System Box */
+        .avatar-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin-bottom: 16px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--accent), #150485);
+            box-shadow: 0 0 24px rgba(249, 168, 212, 0.25);
+        }
+
+        .avatar-scan {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        .avatar-scan img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.2) contrast(1.1);
+        }
+
+        .avatar-scan::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: scanLine 2.5s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+
+        /* Pulse Status */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            color: var(--term-green);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--term-green);
+            border-radius: 50%;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        }
+
+        /* Terminal Window Styling */
+        .term-window {
+            background: rgba(17, 17, 20, 0.85);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .term-window:hover {
+            border-color: rgba(249, 168, 212, 0.3);
+            box-shadow: 0 10px 30px rgba(249, 168, 212, 0.05);
+        }
+
+        .term-bar {
+            background: #15151a;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .term-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .term-btn {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .term-btn.red { background: var(--term-red); }
+        .term-btn.yellow { background: var(--term-yellow); }
+        .term-btn.green { background: var(--term-green); }
+
+        .term-title {
+            font-size: 11px;
+            color: var(--dim);
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .term-body {
+            padding: 18px;
+            flex: 1;
+            overflow-y: auto;
+            font-family: var(--mono);
+        }
+
+        /* Interactive Console */
+        .console-output {
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--muted);
+            scroll-behavior: smooth;
+        }
+
+        .console-output .line {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+        }
+
+        .console-output .prompt {
+            color: var(--accent);
+        }
+
+        .console-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .console-input-row .prompt {
+            color: var(--accent);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .console-input-row input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            outline: none;
+        }
+
+        /* Skill Chips */
+        .skills-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .skills-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .skill-group-chip {
+            background: rgba(22, 22, 27, 0.6);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 99px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .skill-group-chip.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+            box-shadow: 0 0 10px rgba(249, 168, 212, 0.15);
+        }
+
+        .skill-group-chip:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .skill-items-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 40px;
+        }
+
+        .skill-items-grid .pill {
+            transition: all 0.2s ease;
+        }
+
+        .skill-items-grid .pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+            transform: translateY(-1px);
+        }
+
+        /* Interactive Bars */
+        .skills-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .interactive-bar {
+            display: grid;
+            grid-template-columns: 160px 1fr 45px;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .interactive-bar:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .interactive-bar:hover .bar-title {
+            color: var(--accent);
+        }
+
+        .interactive-bar:hover .fill {
+            background: linear-gradient(90deg, var(--accent), #fff);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .interactive-bar .bar-title {
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+
+        .interactive-bar .track {
+            height: 8px;
+            border-radius: 99px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .interactive-bar .fill {
+            height: 100%;
+            width: var(--w);
+            background: linear-gradient(90deg, #150485, var(--accent));
+            border-radius: 99px;
+            transition: width 1.2s cubic-bezier(0.1, 0.8, 0.2, 1), background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .interactive-bar .val {
+            color: var(--dim);
+            text-align: right;
+            font-size: 12px;
+        }
+
+        /* Cyber Facts table */
+        .fact-table {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+            width: 100%;
+        }
+
+        .fact-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 8px;
+        }
+
+        .fact-row .lbl {
+            color: var(--dim);
+        }
+
+        .fact-row .val {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Social Grid Glow */
+        .social-cyber-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        @media (max-width: 480px) {
+            .social-cyber-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cyber-soc-card {
+            border: 1px solid var(--border);
+            background: rgba(22, 22, 27, 0.6);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .cyber-soc-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 3px; height: 100%;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .cyber-soc-card:hover {
+            border-color: var(--accent);
+            background: rgba(249, 168, 212, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(249, 168, 212, 0.08);
+        }
+
+        .cyber-soc-card:hover::before {
+            opacity: 1;
+        }
+
+        .cyber-soc-card .tag {
+            font-size: 10px;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .cyber-soc-card .hndl {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: bold;
+            word-break: break-all;
+            transition: color 0.2s ease;
+        }
+
+        .cyber-soc-card:hover .hndl {
+            color: var(--accent);
+        }
+
+        .cyber-soc-card.todo {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .cyber-soc-card.todo:hover {
+            transform: none;
+            border-color: var(--border);
+            box-shadow: none;
+            background: rgba(22, 22, 27, 0.6);
+        }
+        .cyber-soc-card.todo:hover::before {
+            opacity: 0;
+        }
+
+        .cyber-soc-card[data-copied]::after {
+            content: "copied!";
+            position: absolute;
+            top: 10px; right: 14px;
+            font-size: 10px;
+            color: var(--accent);
+            font-family: var(--mono);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div id="lgrid" aria-hidden="true"></div>
@@ -15,54 +472,151 @@
         <a class="logo" href="index.html">s31zur3<span class="dot">::</span>void</a>
         <nav>
             <a href="index.html">home</a>
+            <a href="profile.html" class="active">skills</a>
             <a href="archive.html">writeups</a>
-            <a href="#" class="active">skills</a>
         </nav>
     </header>
 
     <main class="container">
-        <section class="hero">
+        <section class="hero" style="padding-bottom: 20px;">
             <div class="kicker">~/void/profile $</div>
-            <h1 class="names">s31zur3</h1>
+            <h1 class="names"><span class="rx">s31zur3</span></h1>
             <p class="tagline">security enthusiast · ctf player · patterns before exploits</p>
         </section>
 
-        <section class="section" id="profile">
-            <div class="sec-head"><span class="num">01</span><span class="rx">profile</span></div>
-            <div class="profile-hero">
-                <img class="avatar" src="portrait.png" alt="s31zur3">
-                <div class="card about-text" style="flex:1; min-width:260px;">
-                    <p>
-                        Security enthusiast hunting flags in the void. I spend most of my time reading
-                        <strong>patterns before exploits</strong> — reverse engineering binaries, breaking web apps,
-                        and cracking crypto that the organizers thought was "secure".
-                    </p>
-                    <p>
-                        Best result so far: <strong class="badge-rank">1st place globally</strong> at ShazCTF 2025.
-                        All writeups live in the <a href="archive.html">archive</a>.
-                    </p>
+        <div class="profile-grid">
+            <!-- Left Column: Portrait & Facts, Socials -->
+            <div class="left-col">
+                <!-- Avatar & Facts Window -->
+                <div class="term-window">
+                    <div class="term-bar">
+                        <div class="term-btns">
+                            <span class="term-btn red"></span>
+                            <span class="term-btn yellow"></span>
+                            <span class="term-btn green"></span>
+                        </div>
+                        <div class="term-title">IDENTITY</div>
+                    </div>
+                    <div class="term-body avatar-box">
+                        <div class="avatar-container">
+                            <div class="avatar-scan">
+                                <img src="portrait.png" alt="s31zur3">
+                            </div>
+                        </div>
+                        
+                        <div class="status-badge">
+                            <span class="pulse-dot"></span>
+                            <span>ACTIVE NODE</span>
+                        </div>
+
+                        <div class="fact-table">
+                            <div class="fact-row">
+                                <span class="lbl">origin</span>
+                                <span class="val">India</span>
+                            </div>
+                            <div class="fact-row">
+                                <span class="lbl">handle</span>
+                                <span class="val">s31zur3</span>
+                            </div>
+                            <div class="fact-row">
+                                <span class="lbl">focus</span>
+                                <span class="val">Rev · Pwn · Crypto</span>
+                            </div>
+                            <div class="fact-row">
+                                <span class="lbl">status</span>
+                                <span class="val">tinkering & ctf</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Socials Card -->
+                <div class="term-window">
+                    <div class="term-bar">
+                        <div class="term-btns">
+                            <span class="term-btn red"></span>
+                            <span class="term-btn yellow"></span>
+                            <span class="term-btn green"></span>
+                        </div>
+                        <div class="term-title">COMMUNICATION</div>
+                    </div>
+                    <div class="term-body" style="padding: 14px;">
+                        <div class="social-cyber-grid" id="socgrid"></div>
+                    </div>
                 </div>
             </div>
-            <div class="profile-facts">
-                <div class="fact"><b>country</b><span>India</span></div>
-                <div class="fact"><b>discord</b><span>@s31zur3_45403</span></div>
-                <div class="fact"><b>focus</b><span>reverse engineering · pwn · crypto</span></div>
-                <div class="fact"><b>status</b><span>playing ctfs · tinkering</span></div>
-            </div>
-        </section>
 
-        <section class="section" id="socials">
-            <div class="sec-head"><span class="num">02</span><span class="rx">socials</span></div>
-            <div class="socgrid" id="socgrid"></div>
-        </section>
+            <!-- Right Column: Interactive Console, Skills Matrix -->
+            <div class="right-col">
+                <!-- Bio Terminal -->
+                <div class="term-window">
+                    <div class="term-bar">
+                        <div class="term-btns">
+                            <span class="term-btn red"></span>
+                            <span class="term-btn yellow"></span>
+                            <span class="term-btn green"></span>
+                        </div>
+                        <div class="term-title">ABOUT_SYSTEM</div>
+                    </div>
+                    <div class="term-body about-text" style="font-size: 14px;">
+                        <p style="margin-bottom: 12px;">
+                            Security enthusiast hunting flags in the void. I spend most of my time reading 
+                            <strong style="color: var(--accent);">patterns before exploits</strong> — reverse engineering binaries, 
+                            breaking web applications, and cracking cryptography that organizers thought was "secure".
+                        </p>
+                        <p>
+                            Best result so far: <strong class="badge-rank">1st place globally</strong> at ShazCTF 2025. 
+                            I enjoy building tools, designing secure systems, and solving complex security challenges.
+                            All writeups live in the <a href="archive.html" style="color: var(--accent); border-bottom: 1px dashed var(--accent);">archive</a>.
+                        </p>
+                    </div>
+                </div>
 
-        <section class="section" id="skills">
-            <div class="sec-head"><span class="num">03</span><span class="rx">skills</span></div>
-            <div class="card">
-                <div class="skills" id="pills"></div>
-                <div class="bars" id="bars"></div>
+                <!-- Interactive Terminal Console -->
+                <div class="term-window">
+                    <div class="term-bar">
+                        <div class="term-btns">
+                            <span class="term-btn red"></span>
+                            <span class="term-btn yellow"></span>
+                            <span class="term-btn green"></span>
+                        </div>
+                        <div class="term-title">Interactive Console</div>
+                    </div>
+                    <div class="term-body" style="background: #0d0d11;">
+                        <div class="console-output" id="console-output">
+                            <div class="line"><span style="color: var(--term-green);">[+] System Diagnostic Tool initialized.</span></div>
+                            <div class="line">Type <span style="color: var(--accent); font-weight: bold;">help</span> or click on any skill/pill below to query statistics.</div>
+                            <div class="line"> </div>
+                        </div>
+                        <div class="console-input-row">
+                            <span class="prompt">guest@void:~$</span>
+                            <input type="text" id="terminal-input" placeholder="try 'help', 'neofetch', 'skills'..." autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills & Matrices Card -->
+                <div class="term-window">
+                    <div class="term-bar">
+                        <div class="term-btns">
+                            <span class="term-btn red"></span>
+                            <span class="term-btn yellow"></span>
+                            <span class="term-btn green"></span>
+                        </div>
+                        <div class="term-title">Skills Matrix</div>
+                    </div>
+                    <div class="term-body skills-container">
+                        <div class="skills-nav" id="skills-tabs"></div>
+                        <div class="skill-items-grid" id="pills"></div>
+                        
+                        <div style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                            <span style="font-size: 11px; text-transform: uppercase; color: var(--dim); letter-spacing: 0.05em; font-family: var(--mono);">Core Ratings (click to analyze)</span>
+                            <div class="skills-bars" id="bars"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer>
@@ -71,7 +625,7 @@
 
     <script src="skills.js"></script>
     <script>
-        /* ---------- SOCIALS: edit these to point at your real profiles ---------- */
+        /* ---------- SOCIALS DATA ---------- */
         const SOCIALS = [
             { tag: 'github',   handle: 'github.com/S31ZUR3',   href: 'https://github.com/S31ZUR3' },
             { tag: 'discord',  handle: '@s31zur3_45403',       copy: true },
@@ -79,18 +633,337 @@
             { tag: 'linkedin', handle: 'add your linkedin.',   href: '' }
         ];
 
-        /* ---------- skills pills + bars ---------- */
+        /* ---------- RATINGS DATA ---------- */
         const BARS = [
             ['reverse engineering', 78], ['binary exploitation', 72], ['web security', 70],
             ['cryptography', 66], ['blockchain', 48], ['forensics', 52]
         ];
-        const pills = document.getElementById('pills');
-        SKILLS.forEach(([label, items]) => {
-            pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill cat', textContent: label }));
-            items.forEach(s => pills.appendChild(Object.assign(document.createElement('span'), { className: 'pill', textContent: s })));
+
+        /* ---------- DIAGNOSTIC DICTIONARY ---------- */
+        const DIAGNOSTICS = {
+            // Categories
+            "reverse engineering": [
+                "guest@void:~$ analyze --target ELF-64",
+                "[*] Reading symbol tables...",
+                "[+] main: 0x401120 | decrypt: 0x401290 | check: 0x401310",
+                "[+] Found anti-debugging traps (ptrace_traceme detected).",
+                "[+] Bypassing security checks... status: SUCCESS."
+            ],
+            "binary exploitation": [
+                "guest@void:~$ checksec --file vulnerable-binary",
+                "    Arch:     amd64-64-little\n    RELRO:    Full RELRO\n    Stack:    No canary found\n    NX:       NX enabled\n    PIE:      PIE enabled",
+                "guest@void:~$ exploit --payload ret2libc",
+                "[+] Crafting stack frame with ROP gadgets...",
+                "[+] Spawning interactive root shell! Enjoy."
+            ],
+            "web security": [
+                "guest@void:~$ web-scan -u https://target.void",
+                "[*] Testing parameter injections...",
+                "[+] Found SQL injection on vulnerability node '/api/v1/search?q='",
+                "[+] Extracting DB schema: database name: 'ctf_db'",
+                "[+] Dump complete: CTF{sql_inj3ct1on_g0es_brrr}."
+            ],
+            "cryptography": [
+                "guest@void:~$ decrypt --cipher rsa-weak-primes",
+                "[*] Computing N factors using Fermat's Method...",
+                "[+] Found p = 135892... | q = 148902...",
+                "[+] Computing private exponent d...",
+                "[+] Decrypted text: CTF{factoring_primes_is_fun_5145}."
+            ],
+            "blockchain": [
+                "guest@void:~$ audit --contract Vault.sol",
+                "[*] Running static analysis with Slither...",
+                "[!] Warning: Reentrancy vulnerability found in withdraw().",
+                "[+] Simulating flashloan exploit vector...",
+                "[+] Drained contract balance! status: PWNED."
+            ],
+            "forensics": [
+                "guest@void:~$ analyze-dump --file memory.dmp",
+                "[*] Parsing Volatility profile: Win10x64...",
+                "[+] Extracting process tree structure...",
+                "[+] Detected rogue process 'lsass_fake.exe' (PID: 4892).",
+                "[+] Recovered hidden flag from memory chunk."
+            ],
+            // Languages
+            "python": [
+                "guest@void:~$ python3 -c 'import this'",
+                "[+] Python 3.12 active node.",
+                "[*] Used for rapid exploit prototyping, writing solving scripts, and automating tasks."
+            ],
+            "c / c++": [
+                "guest@void:~$ gcc exploit.c -o exploit",
+                "[*] Compiling exploit with native performance...",
+                "[+] Low-level control and memory management."
+            ],
+            "assembly (x64)": [
+                "guest@void:~$ nasm -f elf64 shellcode.asm",
+                "[*] Assembly shellcode injection module.",
+                "xor rax, rax; mov al, 59; syscall;"
+            ],
+            "javascript": [
+                "guest@void:~$ node express.js",
+                "[+] Server running on port 8080...",
+                "[*] Used for browser exploits, dynamic UI automation, and scraping."
+            ],
+            "go": [
+                "guest@void:~$ go build concurrent_scanner.go",
+                "[*] High-concurrency network scanning tools.",
+                "[+] Channels and goroutines initialized."
+            ],
+            "solidity": [
+                "guest@void:~$ npx hardhat test",
+                "[*] Testing Ethereum smart contracts...",
+                "[+] All test vectors passing."
+            ],
+            // Tools
+            "ghidra": [
+                "guest@void:~$ ghidra --analyze",
+                "[*] Decompiling binary functions into readable C code.",
+                "[+] Control Flow Graph generated."
+            ],
+            "gdb": [
+                "guest@void:~$ gdb -q ./binary",
+                "pwndbg> break main",
+                "pwndbg> run",
+                "[*] Breaking at entry point. Inspecting registers..."
+            ],
+            "burp suite": [
+                "guest@void:~$ burp --intercept",
+                "[*] Intercepting HTTP POST request to /login...",
+                "[+] Tampering request payload parameters."
+            ],
+            "docker": [
+                "guest@void:~$ docker-compose up -d --build",
+                "[*] Containers built. Sandboxed target environment running."
+            ],
+            "wireshark": [
+                "guest@void:~$ tshark -r capture.pcap",
+                "[*] Parsing TCP streams...",
+                "[+] Recovered base64 payload from raw network packets."
+            ],
+            "pwntools": [
+                "guest@void:~$ python3 exploit.py",
+                "from pwn import *",
+                "r = remote('ctf.challenge', 1337)",
+                "[+] Spawning remote shell..."
+            ]
+        };
+
+        /* ---------- TERMINAL LOGIC ---------- */
+        const termInput = document.getElementById('terminal-input');
+        const termOutput = document.getElementById('console-output');
+
+        function printLine(text, isHtml = false) {
+            const div = document.createElement('div');
+            div.className = 'line';
+            if (isHtml) {
+                div.innerHTML = text;
+            } else {
+                div.textContent = text;
+            }
+            termOutput.appendChild(div);
+            termOutput.scrollTop = termOutput.scrollHeight;
+        }
+
+        function triggerDiagnostic(key) {
+            const cleanKey = key.trim().toLowerCase();
+            termInput.value = cleanKey;
+            
+            // Print command line prompt manually
+            printLine(`guest@void:~$ query --skill "${cleanKey}"`, false);
+            
+            if (DIAGNOSTICS[cleanKey]) {
+                DIAGNOSTICS[cleanKey].forEach((line, index) => {
+                    // Skip the mock shell command line, output the actual diagnostic results
+                    if (index > 0) {
+                        setTimeout(() => {
+                            printLine(line, false);
+                        }, index * 100);
+                    }
+                });
+            } else {
+                printLine(`[!] No custom diagnostic data for "${key}". Core rating is active.`, false);
+            }
+            termInput.value = '';
+        }
+
+        function executeCommand(cmd) {
+            const raw = cmd.trim();
+            const lower = raw.toLowerCase();
+            
+            printLine(`guest@void:~$ ${raw}`, false);
+            
+            if (lower === 'clear') {
+                termOutput.innerHTML = '';
+                return;
+            }
+            if (lower === '') {
+                return;
+            }
+            
+            if (lower === 'help') {
+                printLine("Available commands:", false);
+                printLine("  whoami    - Profile description", false);
+                printLine("  skills    - List core competencies", false);
+                printLine("  socials   - Contact nodes", false);
+                printLine("  neofetch  - System metrics", false);
+                printLine("  exploit   - Run visual shell exploit simulation", false);
+                printLine("  clear     - Clear terminal logs", false);
+                return;
+            }
+            
+            if (lower === 'whoami') {
+                printLine("Username: s31zur3", false);
+                printLine("Role: Security enthusiast & CTF player", false);
+                printLine("Objective: Read patterns before writing exploits.", false);
+                printLine("Achievement: 1st place globally ShazCTF 2025.", false);
+                return;
+            }
+            
+            if (lower === 'skills') {
+                printLine("Core Skill Ratings:", false);
+                BARS.forEach(([name, val]) => {
+                    const stars = '█'.repeat(Math.round(val/10)) + '░'.repeat(10 - Math.round(val/10));
+                    printLine(`  ${name.padEnd(20)} [${stars}] ${val}%`, false);
+                });
+                return;
+            }
+            
+            if (lower === 'socials') {
+                printLine("Active communication nodes:", false);
+                SOCIALS.forEach(s => {
+                    printLine(`  ${s.tag.padEnd(10)}: ${s.handle}`, false);
+                });
+                return;
+            }
+            
+            if (lower === 'neofetch') {
+                printLine(" __   __  _____  ___  _____ ", false);
+                printLine(" \\ \\ / / /  _  \\ \\_/ /  _  \\", false);
+                printLine("  \\ V /  | | | |  |  | | | |", false);
+                printLine("   \\_/   \\_____/  |_| \\_____/", false);
+                printLine("-----------------------------", false);
+                printLine("OS: Void Linux x86_64", false);
+                printLine("Kernel: 3b117c02-77dd-4ad7-8c17-da609fdf1c48", false);
+                printLine("Shell: s31zur3-sh v1.0", false);
+                printLine("Terminal: void-tty0", false);
+                printLine("Focus: Rev / Pwn / Cryptography", false);
+                printLine("Fav Tool: Ghidra & pwntools", false);
+                return;
+            }
+            
+            if (lower === 'exploit') {
+                printLine("[*] Injecting shellcode into memory socket...", false);
+                let count = 0;
+                const interval = setInterval(() => {
+                    if (count < 4) {
+                        printLine(`[+] Overflowing buffer... offset: ${64 + count*8} bytes`, false);
+                        count++;
+                    } else {
+                        clearInterval(interval);
+                        printLine("[+] SUCCESS: Spawning interactive shell session.", false);
+                        printLine("root@void:~# id", false);
+                        printLine("uid=0(root) gid=0(root) groups=0(root)", false);
+                    }
+                }, 250);
+                return;
+            }
+            
+            if (DIAGNOSTICS[lower]) {
+                DIAGNOSTICS[lower].forEach((line, index) => {
+                    if (index > 0) {
+                        printLine(line, false);
+                    }
+                });
+                return;
+            }
+            
+            printLine(`bash: command not found: ${raw}. Try 'help'.`, false);
+        }
+
+        termInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                executeCommand(termInput.value);
+                termInput.value = '';
+            }
         });
 
-        /* ---------- letterized headline / headings ---------- */
+        /* ---------- DYNAMIC SKILLS MATRIX SETUP ---------- */
+        const pillsContainer = document.getElementById('pills');
+        const tabsContainer = document.getElementById('skills-tabs');
+        
+        function renderSkillGroup(groupName) {
+            pillsContainer.innerHTML = '';
+            const groupData = SKILLS.find(([name]) => name === groupName);
+            if (!groupData) return;
+            
+            const [_, items] = groupData;
+            items.forEach(item => {
+                const span = document.createElement('span');
+                span.className = 'pill';
+                span.textContent = item;
+                span.style.cursor = 'pointer';
+                span.addEventListener('click', () => {
+                    triggerDiagnostic(item);
+                });
+                pillsContainer.appendChild(span);
+            });
+        }
+
+        // Render skill tabs
+        SKILLS.forEach(([name]) => {
+            const btn = document.createElement('button');
+            btn.className = 'skill-group-chip';
+            if (name === 'categories') btn.classList.add('active');
+            btn.textContent = name;
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.skill-group-chip').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderSkillGroup(name);
+            });
+            tabsContainer.appendChild(btn);
+        });
+
+        // Initialize with default categories
+        renderSkillGroup('categories');
+
+        // Render progress bars
+        document.getElementById('bars').innerHTML = BARS.map(([name, w]) => `
+            <div class="interactive-bar" onclick="triggerDiagnostic('${name}')">
+                <span class="bar-title">${name}</span>
+                <div class="track">
+                    <div class="fill" style="--w:${w}%"></div>
+                </div>
+                <span class="val">${w}%</span>
+            </div>
+        `).join('');
+
+        /* ---------- SOCIALS SETUP ---------- */
+        const socGrid = document.getElementById('socgrid');
+        SOCIALS.forEach(s => {
+            const a = document.createElement('a');
+            a.className = 'cyber-soc-card';
+            a.href = s.copy ? '#' : (s.href || '#');
+            a.innerHTML = `<span class="tag">${s.tag}</span><span class="hndl">${s.handle}</span>`;
+            
+            if (!s.href && !s.copy) { 
+                a.classList.add('todo'); 
+                a.tabIndex = -1; 
+            }
+            if (s.copy) {
+                a.addEventListener('click', e => {
+                    e.preventDefault();
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(s.handle.replace(/^@/, ''));
+                    }
+                    a.dataset.copied = '1';
+                    setTimeout(() => delete a.dataset.copied, 1200);
+                });
+            }
+            socGrid.appendChild(a);
+        });
+
+        /* ---------- LETTERIZED HEADLINES ---------- */
         const letterize = el => {
             const text = el.textContent;
             el.textContent = '';
@@ -105,11 +978,12 @@
         };
         document.querySelectorAll('.rx').forEach(letterize);
 
-        /* ---------- letter grid background ---------- */
+        /* ---------- LETTER GRID BACKGROUND ---------- */
         const GLYPHS = 'S31ZUR3::VOID/CTF/';
         const CELL = 36;
         const gridEl = document.getElementById('lgrid');
         let gridTimer;
+        
         const buildGrid = () => {
             const cols = Math.min(Math.ceil(innerWidth / CELL), 60);
             const rows = Math.min(Math.ceil(innerHeight / CELL), 40);
@@ -127,26 +1001,11 @@
         buildGrid();
         addEventListener('resize', () => { clearTimeout(gridTimer); gridTimer = setTimeout(buildGrid, 120); });
 
-        /* ---------- socials ---------- */
-        const socGrid = document.getElementById('socgrid');
-        SOCIALS.forEach(s => {
-            const a = document.createElement('a');
-            a.className = 'soc';
-            a.href = s.copy ? '#' : (s.href || '#');
-            a.innerHTML = `<span class="ic">${s.tag.slice(0, 1)}</span><span class="cap">${s.tag}</span><span class="h">${s.handle}</span>`;
-            if (!s.href && !s.copy) { a.classList.add('todo'); a.tabIndex = -1; }
-            if (s.copy) a.addEventListener('click', e => {
-                e.preventDefault();
-                if (navigator.clipboard) navigator.clipboard.writeText(s.handle.replace(/^@/, ''));
-                a.dataset.copied = '1';
-                setTimeout(() => delete a.dataset.copied, 1200);
-            });
-            socGrid.appendChild(a);
+        // Spotlight mouse tracker
+        addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
         });
-
-        document.getElementById('bars').innerHTML = BARS.map(([name, w]) =>
-            `<div class="bar"><span class="t">${name}</span><div class="track"><div class="fill" style="--w:${w}%"></div></div><span class="v">${w}%</span></div>`
-        ).join('');
 
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
