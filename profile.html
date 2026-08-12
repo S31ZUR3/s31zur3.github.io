@@ -26,6 +26,8 @@
             z-index: 0;
             pointer-events: none;
             opacity: 1 !important;
+            -webkit-mask-image: radial-gradient(ellipse at center, transparent 8%, black 78%);
+            mask-image: radial-gradient(ellipse at center, transparent 8%, black 78%);
         }
 
         /* Grid Layout */
@@ -988,59 +990,91 @@
         };
         scramble(document.getElementById('name'));
 
-        /* ---------- LETTER GRID BACKGROUND (CANVAS RENDERER) ---------- */
-        const GLYPHS = 'S31ZUR3::VOID/CTF/';
-        const CELL = 54;
+        /* ---------- INTERACTIVE GRID BACKGROUND (canvas) ---------- */
+        const SIZE = 40, TRAIL = 5, GLOW = 18, IDLE_CNT = 6, IDLE_SPEED = 0.08;
+        const GRID_COLOR = 'rgba(38,38,45,0.6)';
+        const GLOW_COLOR = 'rgba(249,168,212,0.6)';
         const canvas = document.getElementById('lgrid');
         const ctx = canvas.getContext('2d');
-        let W, H, cols, rows, time = 0;
-        let mouseX = -1000, mouseY = -1000;
+        let W, H;
+        const trail = [];
+        const idlePos = [], idleTgt = [];
+        let mouseActive = true, lastMouse = 0;
 
         const resize = () => {
             W = canvas.width = innerWidth;
             H = canvas.height = innerHeight;
-            cols = Math.ceil(W / CELL);
-            rows = Math.ceil(H / CELL);
         };
         resize();
         addEventListener('resize', resize);
+        canvas.style.backgroundImage =
+            `linear-gradient(to right, ${GRID_COLOR} 1px, transparent 1px),` +
+            `linear-gradient(to bottom, ${GRID_COLOR} 1px, transparent 1px)`;
+        canvas.style.backgroundSize = `${SIZE}px ${SIZE}px`;
+
+        const snap = (x, y) => ({
+            x: Math.floor(x / SIZE),
+            y: Math.floor(y / SIZE)
+        });
 
         addEventListener('mousemove', e => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+            if (e.clientX < 0 || e.clientY < 0 || e.clientX > W || e.clientY > H) return;
+            mouseActive = true;
+            lastMouse = Date.now();
+            const c = snap(e.clientX, e.clientY);
+            const last = trail[0];
+            if (!last || last.x !== c.x || last.y !== c.y) {
+                trail.unshift(c);
+                if (trail.length > TRAIL) trail.pop();
+            }
         });
+
+        (function initIdle() {
+            for (let i = 0; i < IDLE_CNT; i++) {
+                const p = {
+                    x: Math.floor(Math.random() * (W / SIZE)),
+                    y: Math.floor(Math.random() * (H / SIZE))
+                };
+                idlePos.push({ ...p });
+                idleTgt.push(p);
+            }
+        })();
 
         (function draw() {
             ctx.clearRect(0, 0, W, H);
-            ctx.font = '13px monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            const cx = cols / 2;
-            const cy = rows / 2;
-            time += 0.015;
-            
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const x = c * CELL + CELL / 2;
-                    const y = r * CELL + CELL / 2;
-                    
-                    const dx = x - mouseX;
-                    const dy = y - mouseY;
-                    const distToMouse = Math.sqrt(dx * dx + dy * dy);
-                    
-                    const distFromCenter = Math.abs(r - cy) + Math.abs(c - cx);
-                    const baseAlpha = 0.08 + 0.16 * (Math.sin(time + distFromCenter * 0.15) * 0.5 + 0.5);
-                    const mouseGlow = Math.max(0, 1 - distToMouse / 350);
-                    
-                    // Multiply glow and opacity for premium responsive lighting
-                    const finalAlpha = 0.16 * (baseAlpha + 0.8 * mouseGlow);
-                    ctx.fillStyle = `rgba(249, 168, 212, ${finalAlpha})`;
-                    
-                    const char = GLYPHS[(r + c) % GLYPHS.length];
-                    ctx.fillText(char, x, y);
-                }
+
+            if (Date.now() - lastMouse > 2000) {
+                mouseActive = false;
+                idlePos.forEach((pos, i) => {
+                    const tgt = idleTgt[i];
+                    const dx = tgt.x - pos.x, dy = tgt.y - pos.y;
+                    if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) {
+                        idleTgt[i] = {
+                            x: Math.floor(Math.random() * (W / SIZE)),
+                            y: Math.floor(Math.random() * (H / SIZE))
+                        };
+                    } else {
+                        pos.x += dx * IDLE_SPEED;
+                        pos.y += dy * IDLE_SPEED;
+                    }
+                    const c = { x: Math.round(pos.x), y: Math.round(pos.y) };
+                    const last = trail[0];
+                    if (!last || last.x !== c.x || last.y !== c.y) {
+                        trail.unshift(c);
+                        if (trail.length > TRAIL * IDLE_CNT) trail.pop();
+                    }
+                });
             }
+
+            trail.forEach((cell, idx) => {
+                const alpha = 1 - idx * (1 / (TRAIL + 1));
+                const color = GLOW_COLOR.replace(/([\d.]+)\)$/, `${alpha})`);
+                ctx.fillStyle = color;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = GLOW;
+                ctx.fillRect(cell.x * SIZE, cell.y * SIZE, SIZE, SIZE);
+            });
+
             requestAnimationFrame(draw);
         })();
 

@@ -224,22 +224,9 @@ input:focus { border-color: var(--accent); }
 
 footer .heart { color: var(--accent); }
 
-/* ---------- letter grid background (profile) ---------- */
+/* ---------- profile interactive grid background (canvas) ---------- */
 #lgrid {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  display: grid; grid-template-columns: repeat(var(--cols, 40), 1fr); grid-auto-rows: 1fr;
-  overflow: hidden; opacity: .16;
-}
-#lgrid .g {
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(9px, 1.4vw, 15px); line-height: 1; color: var(--accent);
-  animation: gskip 2.8s ease-in-out infinite alternate;
-  animation-delay: calc(var(--t) * 20ms);
-  will-change: transform, opacity;
-}
-@keyframes gskip {
-  from { transform: scale(.55); opacity: .2; }
-  to   { transform: scale(1);   opacity: .95; }
 }
 
 /* ---------- profile page ---------- */
