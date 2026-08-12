@@ -1067,92 +1067,125 @@
             heroName.addEventListener('focus', () => runSplitFlap(heroName, { loops: 3, baseDelay: 32 }));
         }
 
-        /* ---------- INTERACTIVE GRID BACKGROUND (canvas) ---------- */
-        const SIZE = 40, TRAIL = 5, GLOW = 18, IDLE_CNT = 6, IDLE_SPEED = 0.08;
-        const GRID_COLOR = 'rgba(38,38,45,0.6)';
-        const GLOW_COLOR = 'rgba(249,168,212,0.6)';
+        /* ---------- CURSOR GRID BACKGROUND ---------- */
         const canvas = document.getElementById('lgrid');
         const ctx = canvas.getContext('2d');
-        let W, H;
-        const trail = [];
-        const idlePos = [], idleTgt = [];
-        let mouseActive = true, lastMouse = 0;
+        const reduceGridMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const GRID_SIZE = 34;
+        const GRID_GAP = 12;
+        const GRID_DOT = 2;
+        const GRID_RADIUS = 150;
+        const GRID_FALLOFF = 1.8;
+        const GRID_BASE = 'rgba(56, 56, 64, 0.42)';
+        const GRID_HOT = [249, 168, 212];
+        const GRID_COOL = [56, 189, 248];
+        const PULSE_SPEED = 420;
+        let W = 0, H = 0, COLS = 0, ROWS = 0;
+        let gridPointer = { x: -9999, y: -9999, active: 0, target: 0 };
+        const gridPulses = [];
+
+        const clamp01 = (value) => Math.max(0, Math.min(1, value));
+        const mix = (a, b, t) => a + ((b - a) * t);
+        const snap = (x, y) => ({
+            x: Math.round(x / GRID_SIZE) * GRID_SIZE,
+            y: Math.round(y / GRID_SIZE) * GRID_SIZE
+        });
 
         const resize = () => {
             W = canvas.width = innerWidth;
             H = canvas.height = innerHeight;
+            COLS = Math.ceil(W / GRID_SIZE) + 1;
+            ROWS = Math.ceil(H / GRID_SIZE) + 1;
         };
+
+        const addPulse = (x, y) => {
+            const p = snap(x, y);
+            gridPulses.push({ x: p.x, y: p.y, born: performance.now() });
+            if (gridPulses.length > 8) gridPulses.shift();
+        };
+
+        const setPointer = (x, y, active = 1) => {
+            gridPointer.x = x;
+            gridPointer.y = y;
+            gridPointer.target = active;
+        };
+
+        addEventListener('pointermove', (event) => {
+            setPointer(event.clientX, event.clientY, 1);
+        }, { passive: true });
+
+        addEventListener('pointerleave', () => {
+            gridPointer.target = 0;
+        });
+
+        addEventListener('pointerdown', (event) => {
+            setPointer(event.clientX, event.clientY, 1);
+            addPulse(event.clientX, event.clientY);
+        }, { passive: true });
+
+        addEventListener('touchstart', (event) => {
+            const touch = event.touches[0];
+            if (!touch) return;
+            setPointer(touch.clientX, touch.clientY, 1);
+            addPulse(touch.clientX, touch.clientY);
+        }, { passive: true });
+
         resize();
         addEventListener('resize', resize);
-        canvas.style.backgroundImage =
-            `linear-gradient(to right, ${GRID_COLOR} 1px, transparent 1px),` +
-            `linear-gradient(to bottom, ${GRID_COLOR} 1px, transparent 1px)`;
-        canvas.style.backgroundSize = `${SIZE}px ${SIZE}px`;
 
-        const snap = (x, y) => ({
-            x: Math.floor(x / SIZE),
-            y: Math.floor(y / SIZE)
-        });
-
-        addEventListener('mousemove', e => {
-            if (e.clientX < 0 || e.clientY < 0 || e.clientX > W || e.clientY > H) return;
-            mouseActive = true;
-            lastMouse = Date.now();
-            const c = snap(e.clientX, e.clientY);
-            const last = trail[0];
-            if (!last || last.x !== c.x || last.y !== c.y) {
-                trail.unshift(c);
-                if (trail.length > TRAIL) trail.pop();
-            }
-        });
-
-        (function initIdle() {
-            for (let i = 0; i < IDLE_CNT; i++) {
-                const p = {
-                    x: Math.floor(Math.random() * (W / SIZE)),
-                    y: Math.floor(Math.random() * (H / SIZE))
-                };
-                idlePos.push({ ...p });
-                idleTgt.push(p);
-            }
-        })();
-
-        (function draw() {
+        (function drawGrid(now = performance.now()) {
             ctx.clearRect(0, 0, W, H);
+            gridPointer.active += (gridPointer.target - gridPointer.active) * (reduceGridMotion.matches ? 0.24 : 0.14);
 
-            if (Date.now() - lastMouse > 2000) {
-                mouseActive = false;
-                idlePos.forEach((pos, i) => {
-                    const tgt = idleTgt[i];
-                    const dx = tgt.x - pos.x, dy = tgt.y - pos.y;
-                    if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) {
-                        idleTgt[i] = {
-                            x: Math.floor(Math.random() * (W / SIZE)),
-                            y: Math.floor(Math.random() * (H / SIZE))
-                        };
-                    } else {
-                        pos.x += dx * IDLE_SPEED;
-                        pos.y += dy * IDLE_SPEED;
+            for (let row = 0; row < ROWS; row++) {
+                const y = row * GRID_SIZE;
+                for (let col = 0; col < COLS; col++) {
+                    const x = col * GRID_SIZE;
+                    let influence = 0;
+                    let pulseGlow = 0;
+
+                    if (gridPointer.active > 0.01) {
+                        const dx = x - gridPointer.x;
+                        const dy = y - gridPointer.y;
+                        const dist = Math.hypot(dx, dy);
+                        const normalized = clamp01(1 - (dist / GRID_RADIUS));
+                        influence = Math.pow(normalized, GRID_FALLOFF) * gridPointer.active;
                     }
-                    const c = { x: Math.round(pos.x), y: Math.round(pos.y) };
-                    const last = trail[0];
-                    if (!last || last.x !== c.x || last.y !== c.y) {
-                        trail.unshift(c);
-                        if (trail.length > TRAIL * IDLE_CNT) trail.pop();
+
+                    for (let i = gridPulses.length - 1; i >= 0; i--) {
+                        const pulse = gridPulses[i];
+                        const age = now - pulse.born;
+                        if (age > PULSE_SPEED * 3.2) {
+                            gridPulses.splice(i, 1);
+                            continue;
+                        }
+
+                        const progress = age / PULSE_SPEED;
+                        const waveRadius = progress * GRID_RADIUS * 1.5;
+                        const dist = Math.hypot(x - pulse.x, y - pulse.y);
+                        const band = 26 + (progress * 16);
+                        const wave = Math.max(0, 1 - Math.abs(dist - waveRadius) / band);
+                        pulseGlow = Math.max(pulseGlow, wave * (1 - clamp01(progress / 3.2)));
                     }
-                });
+
+                    const glow = Math.max(influence, pulseGlow);
+                    const dotSize = GRID_DOT + (glow * GRID_GAP * 0.36);
+                    const hotMix = glow * 0.85;
+                    const r = Math.round(mix(GRID_COOL[0], GRID_HOT[0], hotMix));
+                    const g = Math.round(mix(GRID_COOL[1], GRID_HOT[1], hotMix));
+                    const b = Math.round(mix(GRID_COOL[2], GRID_HOT[2], hotMix));
+
+                    ctx.beginPath();
+                    ctx.fillStyle = glow > 0.01 ? `rgba(${r}, ${g}, ${b}, ${0.12 + (glow * 0.7)})` : GRID_BASE;
+                    ctx.shadowBlur = glow > 0.01 ? 10 + (glow * 18) : 0;
+                    ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${glow * 0.55})`;
+                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
-            trail.forEach((cell, idx) => {
-                const alpha = 1 - idx * (1 / (TRAIL + 1));
-                const color = GLOW_COLOR.replace(/([\d.]+)\)$/, `${alpha})`);
-                ctx.fillStyle = color;
-                ctx.shadowColor = color;
-                ctx.shadowBlur = GLOW;
-                ctx.fillRect(cell.x * SIZE, cell.y * SIZE, SIZE, SIZE);
-            });
-
-            requestAnimationFrame(draw);
+            ctx.shadowBlur = 0;
+            requestAnimationFrame(drawGrid);
         })();
 
         document.getElementById('year').textContent = new Date().getFullYear();
