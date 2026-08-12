@@ -489,7 +489,7 @@
     <main class="container">
         <section class="hero" style="padding-bottom: 20px;">
             <div class="kicker">~/void/profile $</div>
-            <h1 class="names" id="name" tabindex="0">s31zur3</h1>
+            <h1 class="names split-flap" id="name" tabindex="0">s31zur3</h1>
             <p class="tagline">security enthusiast · ctf player · patterns before exploits</p>
         </section>
 
@@ -971,78 +971,100 @@
             socGrid.appendChild(a);
         });
 
-        /* ---------- SCRAMBLE HERO NAME ---------- */
+        /* ---------- SPLIT-FLAP HERO NAME ---------- */
         const heroName = document.getElementById('name');
         const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-        const SCRAMBLE_GLYPHS = 'S31ZUR3<>/_-[]{}=*+?#0123456789';
-        let scrambleFrame = 0;
+        const FLAP_GLYPHS = 'S31ZUR3-_/<>[]{}0123456789';
+        const flapTimeouts = new WeakMap();
 
-        const scrambleName = (el, {
-            duration = 760,
-            startDelay = 120,
-            perChar = 42,
-            settleTail = 150,
-        } = {}) => {
-            const text = el.dataset.text || el.textContent;
+        const buildSplitFlap = (el) => {
+            const text = el.dataset.text || el.textContent.trim();
             el.dataset.text = text;
-            if (reduceMotion.matches) {
-                el.textContent = text;
-                return;
-            }
+            el.setAttribute('aria-label', text);
+            el.innerHTML = '';
 
-            cancelAnimationFrame(scrambleFrame);
-            const startAt = performance.now() + startDelay;
+            text.split('').forEach((char, index) => {
+                const tile = document.createElement('span');
+                tile.className = 'flap-char';
+                tile.dataset.current = char;
+                tile.dataset.index = index;
+                tile.setAttribute('aria-hidden', 'true');
 
-            const render = (now) => {
-                if (now < startAt) {
-                    scrambleFrame = requestAnimationFrame(render);
-                    return;
-                }
+                const inner = document.createElement('span');
+                inner.className = 'flap-inner';
 
-                const elapsed = now - startAt;
-                const progress = Math.min(elapsed / duration, 1);
-                let output = '';
+                const front = document.createElement('span');
+                front.className = 'flap-face front';
+                front.textContent = char;
 
-                for (let i = 0; i < text.length; i++) {
-                    const revealAt = i * perChar;
-                    const charElapsed = elapsed - revealAt;
+                const back = document.createElement('span');
+                back.className = 'flap-face back';
+                back.textContent = char;
 
-                    if (charElapsed >= settleTail || progress === 1) {
-                        output += text[i];
-                    } else if (charElapsed > 0) {
-                        output += SCRAMBLE_GLYPHS[(Math.random() * SCRAMBLE_GLYPHS.length) | 0];
-                    } else {
-                        output += text[i];
-                    }
-                }
-
-                el.textContent = output;
-
-                if (progress < 1) {
-                    scrambleFrame = requestAnimationFrame(render);
-                } else {
-                    el.textContent = text;
-                }
-            };
-
-            scrambleFrame = requestAnimationFrame(render);
+                inner.append(front, back);
+                tile.appendChild(inner);
+                el.appendChild(tile);
+            });
         };
 
-        scrambleName(heroName);
+        const clearFlapTimers = (el) => {
+            (flapTimeouts.get(el) || []).forEach(clearTimeout);
+            flapTimeouts.set(el, []);
+        };
+
+        const queueFlapTimer = (el, fn, delay) => {
+            const id = setTimeout(fn, delay);
+            flapTimeouts.set(el, [...(flapTimeouts.get(el) || []), id]);
+            return id;
+        };
+
+        const flipTileTo = (el, tile, nextChar) => {
+            const front = tile.querySelector('.front');
+            const back = tile.querySelector('.back');
+            if (front.textContent === nextChar) return;
+
+            back.textContent = nextChar;
+            tile.classList.remove('is-flipping');
+            void tile.offsetWidth;
+            tile.classList.add('is-flipping');
+
+            queueFlapTimer(el, () => {
+                front.textContent = nextChar;
+                back.textContent = nextChar;
+                tile.classList.remove('is-flipping');
+            }, 180);
+        };
+
+        const runSplitFlap = (el, { loops = 4, baseDelay = 60 } = {}) => {
+            if (reduceMotion.matches) return;
+
+            clearFlapTimers(el);
+            const text = el.dataset.text;
+            const tiles = [...el.querySelectorAll('.flap-char')];
+            tiles.forEach((tile, index) => {
+                const target = text[index];
+                let tick = 0;
+
+                const cycle = () => {
+                    if (tick < loops) {
+                        flipTileTo(el, tile, FLAP_GLYPHS[(Math.random() * FLAP_GLYPHS.length) | 0]);
+                        tick += 1;
+                        queueFlapTimer(el, cycle, 58);
+                    } else {
+                        flipTileTo(el, tile, target);
+                    }
+                };
+
+                queueFlapTimer(el, cycle, index * baseDelay);
+            });
+        };
+
+        buildSplitFlap(heroName);
+        runSplitFlap(heroName, { loops: 5, baseDelay: 48 });
 
         if (!reduceMotion.matches) {
-            heroName.addEventListener('pointerenter', () => scrambleName(heroName, {
-                duration: 620,
-                startDelay: 0,
-                perChar: 34,
-                settleTail: 120,
-            }));
-            heroName.addEventListener('focus', () => scrambleName(heroName, {
-                duration: 620,
-                startDelay: 0,
-                perChar: 34,
-                settleTail: 120,
-            }));
+            heroName.addEventListener('pointerenter', () => runSplitFlap(heroName, { loops: 3, baseDelay: 32 }));
+            heroName.addEventListener('focus', () => runSplitFlap(heroName, { loops: 3, baseDelay: 32 }));
         }
 
         /* ---------- INTERACTIVE GRID BACKGROUND (canvas) ---------- */

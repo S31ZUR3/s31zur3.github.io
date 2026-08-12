@@ -23,7 +23,7 @@
     <main class="container">
         <section class="hero">
             <div class="kicker" id="kicker">~/void/ctf-player $</div>
-            <h1 id="name">s31zur3</h1>
+            <h1 id="name" class="warp-text" tabindex="0">s31zur3</h1>
             <p class="tagline"><span id="typed"></span><span class="caret" id="caret"></span></p>
 
             <div class="stats">
@@ -85,24 +85,70 @@
 
         const { animate, createTimeline, stagger, onScroll } = anime;
 
-        /* ----- scramble headline ----- */
-        const scramble = (el, { speed = 30 } = {}) => {
-            const text = el.textContent;
-            el.textContent = '';
-            const glyphs = '!<>-_\\/[]{}—=+*^?#_0123456789';
-            let frame = 0;
-            const total = text.length * 6 + 20;
-            const t = setInterval(() => {
-                let out = '';
-                for (let i = 0; i < text.length; i++) {
-                    const settle = (total / text.length) * (i + 1) - 8;
-                    out += frame >= settle ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
-                }
-                el.textContent = out;
-                if (++frame >= total) { clearInterval(t); el.textContent = text; }
-            }, speed);
+        /* ----- warp headline ----- */
+        const heroName = document.getElementById('name');
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+        const setupWarpText = (el) => {
+            const text = el.textContent.trim();
+            el.setAttribute('aria-label', text);
+            el.dataset.text = text;
+            el.innerHTML = '';
+
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'warp-char';
+                span.textContent = char;
+                span.dataset.index = index;
+                span.setAttribute('aria-hidden', 'true');
+                el.appendChild(span);
+            });
         };
-        scramble(document.getElementById('name'));
+
+        const settleWarpText = (el) => {
+            el.dataset.active = '0';
+            el.querySelectorAll('.warp-char').forEach(char => {
+                char.style.transform = 'translate3d(0, 0, 0) rotate(0deg) scale(1)';
+            });
+        };
+
+        const updateWarpText = (el, pointerX) => {
+            const chars = el.querySelectorAll('.warp-char');
+            if (!chars.length || reduceMotion.matches) return;
+
+            el.dataset.active = '1';
+            const rect = el.getBoundingClientRect();
+
+            chars.forEach((char) => {
+                const box = char.getBoundingClientRect();
+                const localCenter = box.left - rect.left + (box.width / 2);
+                const distance = (localCenter - pointerX) / Math.max(rect.width, 1);
+                const falloff = Math.max(0, 1 - Math.abs(distance) * 3.8);
+                const lift = -34 * falloff;
+                const drift = -distance * 12;
+                const rotate = -distance * 22;
+                const scale = 1 + (falloff * 0.18);
+
+                char.style.transform = `translate3d(${drift}px, ${lift}px, 0) rotate(${rotate}deg) scale(${scale})`;
+            });
+        };
+
+        setupWarpText(heroName);
+        settleWarpText(heroName);
+
+        if (!reduceMotion.matches) {
+            heroName.addEventListener('pointermove', (event) => {
+                const rect = heroName.getBoundingClientRect();
+                updateWarpText(heroName, event.clientX - rect.left);
+            });
+            heroName.addEventListener('pointerenter', (event) => {
+                const rect = heroName.getBoundingClientRect();
+                updateWarpText(heroName, event.clientX - rect.left);
+            });
+            heroName.addEventListener('pointerleave', () => settleWarpText(heroName));
+            heroName.addEventListener('focus', () => updateWarpText(heroName, heroName.getBoundingClientRect().width / 2));
+            heroName.addEventListener('blur', () => settleWarpText(heroName));
+        }
 
         /* ----- typewriter tagline ----- */
         const taglines = [
