@@ -43,86 +43,112 @@
             }
         }
 
-        /* Avatar & System Box */
-        .avatar-box {
+        /* Hanging ID Card */
+        #idcard {
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            position: relative;
+            margin-bottom: 20px;
+            touch-action: none;
+            user-select: none;
         }
-
-        .avatar-container {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            margin-bottom: 16px;
-            border-radius: 28px;
-            padding: 4px;
-            background: linear-gradient(135deg, var(--accent), #150485);
-            box-shadow: 0 0 24px rgba(249, 168, 212, 0.25);
-        }
-
-        .avatar-scan {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 24px;
-            overflow: hidden;
-            border: 2px solid var(--border);
-        }
-
-        .avatar-scan img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: grayscale(0.2) contrast(1.1);
-        }
-
-        .avatar-scan::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 3px;
+        .id-anchor {
+            width: 12px; height: 12px;
+            border-radius: 50%;
             background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            animation: scanLine 2.5s linear infinite;
+            box-shadow: 0 0 10px var(--accent);
+            z-index: 2;
         }
-
-        @keyframes scanLine {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
-        }
-
-        /* Pulse Status */
-        .status-badge {
-            display: inline-flex;
+        .id-swing {
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
-            background: rgba(52, 211, 153, 0.1);
-            border: 1px solid rgba(52, 211, 153, 0.2);
-            color: var(--term-green);
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 0.05em;
-            margin-top: 8px;
+            cursor: grab;
+            transform: rotate(0deg);
+            transform-origin: top center;
+            will-change: transform;
+            margin-top: -6px;
+        }
+        .id-swing:active { cursor: grabbing; }
+        .id-rope { pointer-events: none; }
+        .id-card {
+            width: 208px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #111114;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.55);
+            pointer-events: none;
+            margin-top: -2px;
+        }
+        .id-head {
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--accent) 0%, #150485 100%);
+        }
+        .id-brand {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            color: rgba(255,255,255,0.7);
             text-transform: uppercase;
         }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--term-green);
-            border-radius: 50%;
-            animation: pulse 1.8s infinite;
+        .id-logo {
+            width: 56px; height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.2);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
         }
-
-        @keyframes pulse {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
-            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        .id-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .id-body {
+            background: #19191e;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .id-name { font-size: 14px; font-weight: 700; color: var(--text); text-align: center; }
+        .id-role { font-size: 11px; color: var(--muted); font-weight: 500; text-align: center; }
+        .id-divider { width: 100%; border-top: 1px solid var(--border); margin: 4px 0; }
+        .id-barcode {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 26px;
+            padding: 0 4px;
+        }
+        .id-barcode span { width: 1.7px; background: #d4d4d8; border-radius: 1px; }
+        .id-barcode span:nth-child(3n) { width: 3px; }
+        .id-barcode span:nth-child(n) { height: calc(30% + 15px * var(--h, .5)); }
+        .id-badge {
+            font-size: 10px;
+            font-family: var(--mono);
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+        }
+        .id-status {
+            margin-top: 2px;
+            padding: 1px 12px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            background: var(--accent);
+        }
+        .id-hint {
+            margin-top: 18px;
+            font-size: 11px;
+            color: var(--dim);
+            user-select: none;
+            pointer-events: none;
         }
 
         /* Terminal Window Styling */
@@ -355,32 +381,6 @@
             font-size: 12px;
         }
 
-        /* Cyber Facts table */
-        .fact-table {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 18px;
-            width: 100%;
-        }
-
-        .fact-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            border-bottom: 1px dashed var(--border);
-            padding-bottom: 8px;
-        }
-
-        .fact-row .lbl {
-            color: var(--dim);
-        }
-
-        .fact-row .val {
-            color: var(--text);
-            font-weight: 500;
-        }
-
         /* Social Grid Glow */
         .social-cyber-grid {
             display: grid;
@@ -496,47 +496,42 @@
         <div class="profile-grid">
             <!-- Left Column: Portrait & Facts, Socials -->
             <div class="left-col">
-                <!-- Avatar & Facts Window -->
-                <div class="term-window">
-                    <div class="term-bar">
-                        <div class="term-btns">
-                            <span class="term-btn red"></span>
-                            <span class="term-btn yellow"></span>
-                            <span class="term-btn green"></span>
+                <!-- Hanging ID Card -->
+                <div id="idcard" touch-action:none>
+                    <div class="id-anchor"></div>
+                    <div class="id-swing">
+                        <div class="id-rope">
+                            <svg width="30" height="130" viewBox="0 0 30 130" style="display:block;margin:0 auto;overflow:visible">
+                                <circle cx="15" cy="0" r="5" fill="#4a5568"/>
+                                <path d="M 13 0 L 10 130" stroke="#4a5568" stroke-width="6" opacity="0.9"/>
+                                <path d="M 17 0 L 20 130" stroke="#4a5568" stroke-width="6" opacity="0.9"/>
+                                <rect x="10" y="124" width="10" height="8" rx="2" fill="#94a3b8"/>
+                                <circle cx="15" cy="132" r="3" fill="#e2e8f0"/>
+                            </svg>
                         </div>
-                        <div class="term-title">IDENTITY</div>
-                    </div>
-                    <div class="term-body avatar-box">
-                        <div class="avatar-container">
-                            <div class="avatar-scan">
-                                <img src="portrait.png" alt="s31zur3">
+                        <div class="id-card">
+                            <div class="id-head">
+                                <p class="id-brand">S31ZUR3::VOID</p>
+                                <div class="id-logo"><img src="portrait.png" alt="s31zur3"></div>
                             </div>
-                        </div>
-                        
-                        <div class="status-badge">
-                            <span class="pulse-dot"></span>
-                            <span>ACTIVE NODE</span>
-                        </div>
-
-                        <div class="fact-table">
-                            <div class="fact-row">
-                                <span class="lbl">origin</span>
-                                <span class="val">India</span>
-                            </div>
-                            <div class="fact-row">
-                                <span class="lbl">handle</span>
-                                <span class="val">s31zur3</span>
-                            </div>
-                            <div class="fact-row">
-                                <span class="lbl">focus</span>
-                                <span class="val">Rev · Pwn · Crypto</span>
-                            </div>
-                            <div class="fact-row">
-                                <span class="lbl">status</span>
-                                <span class="val">tinkering & ctf</span>
+                            <div class="id-body">
+                                <p class="id-name">s31zur3</p>
+                                <p class="id-role">security enthusiast · ctf player</p>
+                                <div class="id-divider"></div>
+                                <div class="id-barcode">
+                                    <span style="--h:.95"></span><span style="--h:.35"></span><span style="--h:.75"></span><span style="--h:.1"></span><span style="--h:.6"></span>
+                                    <span style="--h:.9"></span><span style="--h:.05"></span><span style="--h:.8"></span><span style="--h:.5"></span><span style="--h:1"></span>
+                                    <span style="--h:.25"></span><span style="--h:.7"></span><span style="--h:.1"></span><span style="--h:.55"></span><span style="--h:.85"></span>
+                                    <span style="--h:.3"></span><span style="--h:.95"></span><span style="--h:.4"></span><span style="--h:.65"></span><span style="--h:.15"></span>
+                                    <span style="--h:.75"></span><span style="--h:.5"></span><span style="--h:.9"></span><span style="--h:.2"></span><span style="--h:.6"></span>
+                                    <span style="--h:.8"></span><span style="--h:.35"></span><span style="--h:1"></span>
+                                </div>
+                                <p class="id-badge">S31ZUR3-45403</p>
+                                <div class="id-status">ACTIVE</div>
                             </div>
                         </div>
                     </div>
+                    <p class="id-hint">drag or click the card</p>
                 </div>
 
                 <!-- Socials Card -->
@@ -1076,6 +1071,73 @@
             });
 
             requestAnimationFrame(draw);
+        })();
+
+        /* ---------- HANGING ID CARD PENDULUM ---------- */
+        (function () {
+            const ROPE = 130, DAMPING = 0.9, GRAVITY = 3000;
+            const swing = document.querySelector('.id-swing');
+            const phys = { angle: 0, vel: 0 };
+            let raf = null, prevTime = null, prevAngle = 0;
+            let dragging = false, dragStartX = 0, dragAngle0 = 0;
+
+            const tick = now => {
+                if (prevTime === null) prevTime = now;
+                const dt = Math.min((now - prevTime) / 1000, 0.05);
+                prevTime = now;
+                const L = ROPE + 100;
+                if (!dragging) {
+                    const torque = -(GRAVITY / L) * Math.sin(phys.angle) - DAMPING * phys.vel;
+                    phys.vel += torque * dt;
+                    phys.angle += phys.vel * dt;
+                    swing.style.transform = `rotate(${phys.angle * (180 / Math.PI)}deg)`;
+                    if (Math.abs(phys.angle) > 0.001 || Math.abs(phys.vel) > 0.001) {
+                        raf = requestAnimationFrame(tick);
+                    } else {
+                        phys.angle = 0; phys.vel = 0;
+                        swing.style.transform = 'rotate(0deg)';
+                    }
+                } else {
+                    if (dt > 0) phys.vel = (phys.angle - prevAngle) / dt;
+                    prevAngle = phys.angle;
+                    raf = requestAnimationFrame(tick);
+                }
+            };
+            const startPhysics = () => {
+                if (raf) cancelAnimationFrame(raf);
+                prevTime = null;
+                raf = requestAnimationFrame(tick);
+            };
+
+            swing.addEventListener('pointerdown', e => {
+                swing.setPointerCapture(e.pointerId);
+                dragging = true;
+                dragStartX = e.clientX;
+                dragAngle0 = phys.angle;
+                prevAngle = phys.angle;
+                if (raf) cancelAnimationFrame(raf);
+                prevTime = null;
+                raf = requestAnimationFrame(tick);
+            });
+            swing.addEventListener('pointermove', e => {
+                if (!dragging) return;
+                const L = ROPE + 100;
+                const newAngle = dragAngle0 - (e.clientX - dragStartX) / L;
+                phys.angle = Math.max(-1.4, Math.min(1.4, newAngle));
+                swing.style.transform = `rotate(${phys.angle * (180 / Math.PI)}deg)`;
+            });
+            const endDrag = e => {
+                if (!dragging) return;
+                dragging = false;
+            };
+            swing.addEventListener('pointerup', endDrag);
+            swing.addEventListener('pointercancel', endDrag);
+            swing.addEventListener('click', () => {
+                if (Math.abs(phys.vel) < 0.1 && Math.abs(phys.angle) < 0.05) {
+                    phys.vel = 4.0;
+                    startPhysics();
+                }
+            });
         })();
 
         document.getElementById('year').textContent = new Date().getFullYear();
