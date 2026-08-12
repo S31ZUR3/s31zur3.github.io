@@ -88,9 +88,44 @@
         /* ----- warp headline ----- */
         const heroName = document.getElementById('name');
         const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const warpConfig = {
+            text: heroName.textContent.trim(),
+            color: '#f8f5ff',
+            warpStrength: 0.08,
+            warpScale: 1.7,
+            speed: 0.55,
+            pointerInfluence: 0.42,
+            pointerStrength: 0.38,
+            refraction: 0.018,
+            ripple: true,
+            fontSize: 116,
+            fontWeight: 800,
+            fontFamily: 'inherit',
+            letterSpacing: -0.06,
+            lineHeight: 0.9
+        };
 
-        const setupWarpText = (el) => {
-            const text = el.textContent.trim();
+        heroName.style.color = warpConfig.color;
+        heroName.style.fontWeight = warpConfig.fontWeight;
+        heroName.style.fontFamily = warpConfig.fontFamily;
+        heroName.style.letterSpacing = `${warpConfig.letterSpacing}em`;
+        heroName.style.lineHeight = String(warpConfig.lineHeight);
+        heroName.style.minHeight = `${Math.round(warpConfig.fontSize * warpConfig.lineHeight)}px`;
+
+        const warpState = {
+            raf: 0,
+            lastTime: 0,
+            pointerX: 0.5,
+            pointerY: 0.5,
+            currentX: 0.5,
+            currentY: 0.5,
+            active: 0,
+            currentActive: 0,
+            ripple: 0,
+            time: 0
+        };
+
+        const setupWarpText = (el, text) => {
             el.setAttribute('aria-label', text);
             el.dataset.text = text;
             el.innerHTML = '';
@@ -105,49 +140,96 @@
             });
         };
 
-        const settleWarpText = (el) => {
-            el.dataset.active = '0';
-            el.querySelectorAll('.warp-char').forEach(char => {
-                char.style.transform = 'translate3d(0, 0, 0) rotate(0deg) scale(1)';
+        const clamp01 = (value) => Math.max(0, Math.min(1, value));
+
+        const renderWarpText = () => {
+            const chars = heroName.querySelectorAll('.warp-char');
+            const maxLift = warpConfig.fontSize * warpConfig.warpStrength;
+
+            chars.forEach((char, index) => {
+                const total = Math.max(chars.length - 1, 1);
+                const charPos = index / total;
+                const distance = charPos - warpState.currentX;
+                const spread = Math.max(0.18, warpConfig.pointerInfluence);
+                const falloff = Math.exp(-(distance * distance) / spread);
+                const wave = Math.sin((warpState.time * warpConfig.speed * 3.2) + (index * 0.9) + (warpState.ripple * 4.5));
+                const bend = falloff * maxLift * (0.42 + Math.abs(wave) * 0.58) * warpState.currentActive;
+                const xShift = -distance * warpConfig.fontSize * warpConfig.pointerStrength * 0.34 * warpState.currentActive;
+                const rotate = (-distance * 28 * warpState.currentActive) + (wave * 4);
+                const scale = 1 + ((warpConfig.warpScale - 1) * falloff * 0.22 * warpState.currentActive);
+                const skew = -distance * 10 * warpState.currentActive;
+                const refract = distance * warpConfig.fontSize * warpConfig.refraction * 3.2 * warpState.currentActive;
+                const yShift = -(bend + Math.cos((index * 0.65) + (warpState.time * 2.2)) * warpState.ripple * 6);
+
+                char.style.transform = `translate3d(${xShift}px, ${yShift}px, 0) rotate(${rotate}deg) skewX(${skew}deg) scale(${scale})`;
+                char.style.textShadow = `${refract}px 0 rgba(249, 168, 212, ${0.34 * falloff * warpState.currentActive}), ${-refract}px 0 rgba(56, 189, 248, ${0.18 * falloff * warpState.currentActive})`;
             });
+
+            heroName.dataset.active = warpState.currentActive > 0.04 ? '1' : '0';
+            heroName.style.setProperty('--ripple-x', `${warpState.currentX * 100}%`);
+            heroName.style.setProperty('--ripple-scale', String(1 + (warpState.ripple * 3.6)));
+            heroName.style.setProperty('--ripple-opacity', String(warpConfig.ripple ? warpState.currentActive * Math.min(warpState.ripple * 1.4, 0.75) : 0));
         };
 
-        const updateWarpText = (el, pointerX) => {
-            const chars = el.querySelectorAll('.warp-char');
-            if (!chars.length || reduceMotion.matches) return;
+        const tickWarpText = (now) => {
+            if (!warpState.lastTime) warpState.lastTime = now;
+            const delta = Math.min((now - warpState.lastTime) / 1000, 0.04);
+            warpState.lastTime = now;
+            warpState.time += delta;
 
-            el.dataset.active = '1';
-            const rect = el.getBoundingClientRect();
+            const settle = 1 - Math.exp(-delta / 0.08);
+            const rippleDecay = 1 - Math.exp(-delta / 0.28);
 
-            chars.forEach((char) => {
-                const box = char.getBoundingClientRect();
-                const localCenter = box.left - rect.left + (box.width / 2);
-                const distance = (localCenter - pointerX) / Math.max(rect.width, 1);
-                const falloff = Math.max(0, 1 - Math.abs(distance) * 3.8);
-                const lift = -34 * falloff;
-                const drift = -distance * 12;
-                const rotate = -distance * 22;
-                const scale = 1 + (falloff * 0.18);
+            warpState.currentX += (warpState.pointerX - warpState.currentX) * settle;
+            warpState.currentY += (warpState.pointerY - warpState.currentY) * settle;
+            warpState.currentActive += (warpState.active - warpState.currentActive) * (1 - Math.exp(-delta / 0.12));
+            warpState.ripple += (((warpState.active ? 1 : 0) * 0.85) - warpState.ripple) * rippleDecay;
 
-                char.style.transform = `translate3d(${drift}px, ${lift}px, 0) rotate(${rotate}deg) scale(${scale})`;
-            });
+            renderWarpText();
+
+            if (warpState.currentActive > 0.01 || warpState.active > 0.01 || warpState.ripple > 0.01) {
+                warpState.raf = requestAnimationFrame(tickWarpText);
+            } else {
+                warpState.raf = 0;
+                warpState.currentActive = 0;
+                warpState.ripple = 0;
+                renderWarpText();
+            }
         };
 
-        setupWarpText(heroName);
-        settleWarpText(heroName);
+        const startWarpLoop = () => {
+            if (!warpState.raf && !reduceMotion.matches) {
+                warpState.lastTime = 0;
+                warpState.raf = requestAnimationFrame(tickWarpText);
+            }
+        };
+
+        const updateWarpPointer = (clientX, clientY) => {
+            const rect = heroName.getBoundingClientRect();
+            warpState.pointerX = clamp01((clientX - rect.left) / Math.max(rect.width, 1));
+            warpState.pointerY = clamp01((clientY - rect.top) / Math.max(rect.height, 1));
+            warpState.active = 1;
+            startWarpLoop();
+        };
+
+        setupWarpText(heroName, warpConfig.text);
+        renderWarpText();
 
         if (!reduceMotion.matches) {
-            heroName.addEventListener('pointermove', (event) => {
-                const rect = heroName.getBoundingClientRect();
-                updateWarpText(heroName, event.clientX - rect.left);
+            heroName.addEventListener('pointerenter', (event) => updateWarpPointer(event.clientX, event.clientY));
+            heroName.addEventListener('pointermove', (event) => updateWarpPointer(event.clientX, event.clientY));
+            heroName.addEventListener('pointerleave', () => {
+                warpState.active = 0;
+                startWarpLoop();
             });
-            heroName.addEventListener('pointerenter', (event) => {
+            heroName.addEventListener('focus', () => {
                 const rect = heroName.getBoundingClientRect();
-                updateWarpText(heroName, event.clientX - rect.left);
+                updateWarpPointer(rect.left + (rect.width / 2), rect.top + (rect.height * 0.45));
             });
-            heroName.addEventListener('pointerleave', () => settleWarpText(heroName));
-            heroName.addEventListener('focus', () => updateWarpText(heroName, heroName.getBoundingClientRect().width / 2));
-            heroName.addEventListener('blur', () => settleWarpText(heroName));
+            heroName.addEventListener('blur', () => {
+                warpState.active = 0;
+                startWarpLoop();
+            });
         }
 
         /* ----- typewriter tagline ----- */
