@@ -489,7 +489,7 @@
     <main class="container">
         <section class="hero" style="padding-bottom: 20px;">
             <div class="kicker">~/void/profile $</div>
-            <h1 class="names" id="name">s31zur3</h1>
+            <h1 class="names" id="name" tabindex="0">s31zur3</h1>
             <p class="tagline">security enthusiast · ctf player · patterns before exploits</p>
         </section>
 
@@ -972,23 +972,78 @@
         });
 
         /* ---------- SCRAMBLE HERO NAME ---------- */
-        const scramble = (el, { speed = 30 } = {}) => {
-            const text = el.textContent;
-            el.textContent = '';
-            const glyphs = '!<>-_\\/[]{}—=+*^?#_0123456789';
-            let frame = 0;
-            const total = text.length * 6 + 20;
-            const t = setInterval(() => {
-                let out = '';
-                for (let i = 0; i < text.length; i++) {
-                    const settle = (total / text.length) * (i + 1) - 8;
-                    out += frame >= settle ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
+        const heroName = document.getElementById('name');
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const SCRAMBLE_GLYPHS = 'S31ZUR3<>/_-[]{}=*+?#0123456789';
+        let scrambleFrame = 0;
+
+        const scrambleName = (el, {
+            duration = 760,
+            startDelay = 120,
+            perChar = 42,
+            settleTail = 150,
+        } = {}) => {
+            const text = el.dataset.text || el.textContent;
+            el.dataset.text = text;
+            if (reduceMotion.matches) {
+                el.textContent = text;
+                return;
+            }
+
+            cancelAnimationFrame(scrambleFrame);
+            const startAt = performance.now() + startDelay;
+
+            const render = (now) => {
+                if (now < startAt) {
+                    scrambleFrame = requestAnimationFrame(render);
+                    return;
                 }
-                el.textContent = out;
-                if (++frame >= total) { clearInterval(t); el.textContent = text; }
-            }, speed);
+
+                const elapsed = now - startAt;
+                const progress = Math.min(elapsed / duration, 1);
+                let output = '';
+
+                for (let i = 0; i < text.length; i++) {
+                    const revealAt = i * perChar;
+                    const charElapsed = elapsed - revealAt;
+
+                    if (charElapsed >= settleTail || progress === 1) {
+                        output += text[i];
+                    } else if (charElapsed > 0) {
+                        output += SCRAMBLE_GLYPHS[(Math.random() * SCRAMBLE_GLYPHS.length) | 0];
+                    } else {
+                        output += text[i];
+                    }
+                }
+
+                el.textContent = output;
+
+                if (progress < 1) {
+                    scrambleFrame = requestAnimationFrame(render);
+                } else {
+                    el.textContent = text;
+                }
+            };
+
+            scrambleFrame = requestAnimationFrame(render);
         };
-        scramble(document.getElementById('name'));
+
+        scrambleName(heroName);
+
+        if (!reduceMotion.matches) {
+            heroName.addEventListener('pointerenter', () => scrambleName(heroName, {
+                duration: 620,
+                startDelay: 0,
+                perChar: 34,
+                settleTail: 120,
+            }));
+            heroName.addEventListener('focus', () => scrambleName(heroName, {
+                duration: 620,
+                startDelay: 0,
+                perChar: 34,
+                settleTail: 120,
+            }));
+        }
 
         /* ---------- INTERACTIVE GRID BACKGROUND (canvas) ---------- */
         const SIZE = 40, TRAIL = 5, GLOW = 18, IDLE_CNT = 6, IDLE_SPEED = 0.08;

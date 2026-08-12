@@ -275,3 +275,8 @@ footer .heart { color: var(--accent); }
 
 /* ---------- profile hero ---------- */
 .names { font-size: clamp(35px, 6vw, 48px); font-weight: 700; line-height: 1.05; margin: 14px 0 10px; }
+.names:focus-visible {
+  outline: 1px solid rgba(249, 168, 212, 0.7);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
