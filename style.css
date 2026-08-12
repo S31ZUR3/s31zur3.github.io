@@ -102,45 +102,50 @@ nav a.active { color: var(--accent); background: var(--accent-dim); }
   background: var(--accent); margin-left: 3px; transform: translateY(3px);
 }
 
-.warp-text {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 0.01em;
+.fuzzy-text {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-height: 1.1em;
   cursor: default;
   user-select: none;
+  isolation: isolate;
+}
+.fuzzy-base,
+.fuzzy-layer {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+.fuzzy-base {
   position: relative;
-  min-height: 1.15em;
+  z-index: 2;
 }
-.warp-char {
-  display: inline-block;
-  transform: translate3d(0, 0, 0);
-  transition: color 160ms ease;
-  will-change: transform;
-  transform-origin: 50% 72%;
-  text-shadow: 0 0 0 rgba(249, 168, 212, 0);
+.fuzzy-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--fuzzy-opacity, 0);
+  will-change: transform, filter, opacity;
 }
-.warp-text:focus-visible {
+.fuzzy-layer.a {
+  color: rgba(249, 168, 212, 0.92);
+  mix-blend-mode: screen;
+  transform: translate3d(var(--fuzzy-ax, 0px), var(--fuzzy-ay, 0px), 0);
+  filter: blur(var(--fuzzy-ablur, 0px));
+}
+.fuzzy-layer.b {
+  color: rgba(56, 189, 248, 0.78);
+  mix-blend-mode: screen;
+  transform: translate3d(var(--fuzzy-bx, 0px), var(--fuzzy-by, 0px), 0);
+  filter: blur(var(--fuzzy-bblur, 0px));
+}
+.fuzzy-text:focus-visible {
   outline: 1px solid rgba(249, 168, 212, 0.7);
   outline-offset: 8px;
   border-radius: 10px;
 }
-.warp-text[data-active="1"] .warp-char {
-  color: color-mix(in srgb, var(--text) 84%, var(--accent) 16%);
-}
-.warp-text::after {
-  content: "";
-  position: absolute;
-  left: var(--ripple-x, 50%);
-  top: 58%;
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(249, 168, 212, 0.28), rgba(249, 168, 212, 0) 72%);
-  opacity: var(--ripple-opacity, 0);
-  transform: translate(-50%, -50%) scale(var(--ripple-scale, 1));
-  transition: opacity 180ms var(--ease-out);
-  pointer-events: none;
-  filter: blur(8px);
+.fuzzy-text[data-active="1"] .fuzzy-base {
+  color: color-mix(in srgb, var(--text) 90%, var(--accent) 10%);
 }
 
 .split-flap {
@@ -388,7 +393,7 @@ footer .heart { color: var(--accent); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .warp-char,
+  .fuzzy-layer,
   .flap-char,
   .flap-inner {
     animation: none !important;
