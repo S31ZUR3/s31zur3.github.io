@@ -487,7 +487,7 @@
     <main class="container">
         <section class="hero" style="padding-bottom: 20px;">
             <div class="kicker">~/void/profile $</div>
-            <h1 class="names"><span class="rx">s31zur3</span></h1>
+            <h1 class="names" id="name">s31zur3</h1>
             <p class="tagline">security enthusiast · ctf player · patterns before exploits</p>
         </section>
 
@@ -969,20 +969,24 @@
             socGrid.appendChild(a);
         });
 
-        /* ---------- LETTERIZED HEADLINES ---------- */
-        const letterize = el => {
+        /* ---------- SCRAMBLE HERO NAME ---------- */
+        const scramble = (el, { speed = 30 } = {}) => {
             const text = el.textContent;
             el.textContent = '';
-            const n = text.length;
-            text.split('').forEach((ch, i) => {
-                const s = document.createElement('span');
-                s.className = 'lr';
-                s.textContent = ch === ' ' ? '\u00A0' : ch;
-                s.style.setProperty('--t', Math.abs(i - (n - 1) / 2));
-                el.appendChild(s);
-            });
+            const glyphs = '!<>-_\\/[]{}—=+*^?#_0123456789';
+            let frame = 0;
+            const total = text.length * 6 + 20;
+            const t = setInterval(() => {
+                let out = '';
+                for (let i = 0; i < text.length; i++) {
+                    const settle = (total / text.length) * (i + 1) - 8;
+                    out += frame >= settle ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
+                }
+                el.textContent = out;
+                if (++frame >= total) { clearInterval(t); el.textContent = text; }
+            }, speed);
         };
-        document.querySelectorAll('.rx').forEach(letterize);
+        scramble(document.getElementById('name'));
 
         /* ---------- LETTER GRID BACKGROUND (CANVAS RENDERER) ---------- */
         const GLYPHS = 'S31ZUR3::VOID/CTF/';

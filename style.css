@@ -243,11 +243,6 @@ footer .heart { color: var(--accent); }
   to   { transform: scale(1);   opacity: .95; }
 }
 
-/* ---------- letterized headings ---------- */
-.rx { white-space: pre; }
-.rx .lr { display: inline-block; animation: rxp .9s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--t) * 28ms); }
-@keyframes rxp { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
 /* ---------- profile page ---------- */
 .profile-hero { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
 .avatar {
