@@ -85,18 +85,24 @@
 
         const { animate, createTimeline, stagger, onScroll } = anime;
 
-        /* ----- animated char-by-char headline ----- */
-        const nameEl = document.getElementById('name');
-        const name = 's31zur3';
-        nameEl.innerHTML = name.split('').map(c => `<span class="char">${c}</span>`).join('');
-
-        createTimeline({
-            defaults: { ease: 'outExpo', duration: 900 }
-        })
-        .add('.char', {
-            y: [18, 0], opacity: [0, 1],
-            delay: stagger(90, { from: 'start' })
-        });
+        /* ----- scramble headline ----- */
+        const scramble = (el, { speed = 30 } = {}) => {
+            const text = el.textContent;
+            el.textContent = '';
+            const glyphs = '!<>-_\\/[]{}—=+*^?#_0123456789';
+            let frame = 0;
+            const total = text.length * 6 + 20;
+            const t = setInterval(() => {
+                let out = '';
+                for (let i = 0; i < text.length; i++) {
+                    const settle = (total / text.length) * (i + 1) - 8;
+                    out += frame >= settle ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
+                }
+                el.textContent = out;
+                if (++frame >= total) { clearInterval(t); el.textContent = text; }
+            }, speed);
+        };
+        scramble(document.getElementById('name'));
 
         /* ----- typewriter tagline ----- */
         const taglines = [
