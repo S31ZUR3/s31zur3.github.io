@@ -43,112 +43,86 @@
             }
         }
 
-        /* Hanging ID Card */
-        #idcard {
+        /* Avatar & System Box */
+        .avatar-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 20px;
-            touch-action: none;
-            user-select: none;
+            text-align: center;
+            position: relative;
         }
-        .id-anchor {
-            width: 12px; height: 12px;
-            border-radius: 50%;
+
+        .avatar-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin-bottom: 16px;
+            border-radius: 28px;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--accent), #150485);
+            box-shadow: 0 0 24px rgba(249, 168, 212, 0.25);
+        }
+
+        .avatar-scan {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        .avatar-scan img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.2) contrast(1.1);
+        }
+
+        .avatar-scan::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
             background: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-            z-index: 2;
+            box-shadow: 0 0 8px var(--accent);
+            animation: scanLine 2.5s linear infinite;
         }
-        .id-swing {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: grab;
-            transform: rotate(0deg);
-            transform-origin: top center;
-            will-change: transform;
-            margin-top: -6px;
+
+        @keyframes scanLine {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
         }
-        .id-swing:active { cursor: grabbing; }
-        .id-rope { pointer-events: none; }
-        .id-card {
-            width: 208px;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #111114;
-            box-shadow: 0 14px 34px rgba(0,0,0,0.55);
-            pointer-events: none;
-            margin-top: -2px;
-        }
-        .id-head {
-            padding: 12px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, var(--accent) 0%, #150485 100%);
-        }
-        .id-brand {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            color: rgba(255,255,255,0.7);
-            text-transform: uppercase;
-        }
-        .id-logo {
-            width: 56px; height: 56px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: rgba(255,255,255,0.2);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
-        }
-        .id-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .id-body {
-            background: #19191e;
-            padding: 14px 16px;
-            display: flex;
-            flex-direction: column;
+
+        /* Pulse Status */
+        .status-badge {
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-        }
-        .id-name { font-size: 14px; font-weight: 700; color: var(--text); text-align: center; }
-        .id-role { font-size: 11px; color: var(--muted); font-weight: 500; text-align: center; }
-        .id-divider { width: 100%; border-top: 1px solid var(--border); margin: 4px 0; }
-        .id-barcode {
-            display: flex;
-            gap: 2px;
-            align-items: flex-end;
-            height: 26px;
-            padding: 0 4px;
-        }
-        .id-barcode span { width: 1.7px; background: #d4d4d8; border-radius: 1px; }
-        .id-barcode span:nth-child(3n) { width: 3px; }
-        .id-barcode span:nth-child(n) { height: calc(30% + 15px * var(--h, .5)); }
-        .id-badge {
-            font-size: 10px;
-            font-family: var(--mono);
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            color: var(--accent);
-        }
-        .id-status {
-            margin-top: 2px;
-            padding: 1px 12px;
-            border-radius: 999px;
-            font-size: 9px;
-            font-weight: 700;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            background: var(--accent);
-        }
-        .id-hint {
-            margin-top: 18px;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            color: var(--term-green);
+            padding: 4px 12px;
+            border-radius: 6px;
             font-size: 11px;
-            color: var(--dim);
-            user-select: none;
-            pointer-events: none;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--term-green);
+            border-radius: 50%;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
         }
 
         /* Terminal Window Styling */
@@ -381,6 +355,32 @@
             font-size: 12px;
         }
 
+        /* Cyber Facts table */
+        .fact-table {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+            width: 100%;
+        }
+
+        .fact-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 8px;
+        }
+
+        .fact-row .lbl {
+            color: var(--dim);
+        }
+
+        .fact-row .val {
+            color: var(--text);
+            font-weight: 500;
+        }
+
         /* Social Grid Glow */
         .social-cyber-grid {
             display: grid;
@@ -489,49 +489,54 @@
     <main class="container">
         <section class="hero" style="padding-bottom: 20px;">
             <div class="kicker">~/void/profile $</div>
-            <h1 class="names" id="name">s31zur3</h1>
+            <h1 class="names split-flap" id="name" tabindex="0">s31zur3</h1>
             <p class="tagline">security enthusiast · ctf player · patterns before exploits</p>
         </section>
 
         <div class="profile-grid">
             <!-- Left Column: Portrait & Facts, Socials -->
             <div class="left-col">
-                <!-- Hanging ID Card -->
-                <div id="idcard" touch-action:none>
-                    <div class="id-anchor"></div>
-                    <div class="id-swing">
-                        <div class="id-rope">
-                            <svg width="30" height="130" viewBox="0 0 30 130" style="display:block;margin:0 auto;overflow:visible">
-                                <circle cx="15" cy="0" r="5" fill="#4a5568"/>
-                                <path d="M 13 0 L 10 130" stroke="#4a5568" stroke-width="6" opacity="0.9"/>
-                                <path d="M 17 0 L 20 130" stroke="#4a5568" stroke-width="6" opacity="0.9"/>
-                                <rect x="10" y="124" width="10" height="8" rx="2" fill="#94a3b8"/>
-                                <circle cx="15" cy="132" r="3" fill="#e2e8f0"/>
-                            </svg>
+                <!-- Avatar & Facts Window -->
+                <div class="term-window">
+                    <div class="term-bar">
+                        <div class="term-btns">
+                            <span class="term-btn red"></span>
+                            <span class="term-btn yellow"></span>
+                            <span class="term-btn green"></span>
                         </div>
-                        <div class="id-card">
-                            <div class="id-head">
-                                <p class="id-brand">S31ZUR3::VOID</p>
-                                <div class="id-logo"><img src="portrait.png" alt="s31zur3"></div>
+                        <div class="term-title">IDENTITY</div>
+                    </div>
+                    <div class="term-body avatar-box">
+                        <div class="avatar-container">
+                            <div class="avatar-scan">
+                                <img src="portrait.png" alt="s31zur3">
                             </div>
-                            <div class="id-body">
-                                <p class="id-name">s31zur3</p>
-                                <p class="id-role">security enthusiast · ctf player</p>
-                                <div class="id-divider"></div>
-                                <div class="id-barcode">
-                                    <span style="--h:.95"></span><span style="--h:.35"></span><span style="--h:.75"></span><span style="--h:.1"></span><span style="--h:.6"></span>
-                                    <span style="--h:.9"></span><span style="--h:.05"></span><span style="--h:.8"></span><span style="--h:.5"></span><span style="--h:1"></span>
-                                    <span style="--h:.25"></span><span style="--h:.7"></span><span style="--h:.1"></span><span style="--h:.55"></span><span style="--h:.85"></span>
-                                    <span style="--h:.3"></span><span style="--h:.95"></span><span style="--h:.4"></span><span style="--h:.65"></span><span style="--h:.15"></span>
-                                    <span style="--h:.75"></span><span style="--h:.5"></span><span style="--h:.9"></span><span style="--h:.2"></span><span style="--h:.6"></span>
-                                    <span style="--h:.8"></span><span style="--h:.35"></span><span style="--h:1"></span>
-                                </div>
-                                <p class="id-badge">S31ZUR3-45403</p>
-                                <div class="id-status">ACTIVE</div>
+                        </div>
+                        
+                        <div class="status-badge">
+                            <span class="pulse-dot"></span>
+                            <span>ACTIVE NODE</span>
+                        </div>
+
+                        <div class="fact-table">
+                            <div class="fact-row">
+                                <span class="lbl">origin</span>
+                                <span class="val">India</span>
+                            </div>
+                            <div class="fact-row">
+                                <span class="lbl">handle</span>
+                                <span class="val">s31zur3</span>
+                            </div>
+                            <div class="fact-row">
+                                <span class="lbl">focus</span>
+                                <span class="val">Rev · Pwn · Crypto</span>
+                            </div>
+                            <div class="fact-row">
+                                <span class="lbl">status</span>
+                                <span class="val">tinkering & ctf</span>
                             </div>
                         </div>
                     </div>
-                    <p class="id-hint">drag or click the card</p>
                 </div>
 
                 <!-- Socials Card -->
@@ -966,178 +971,221 @@
             socGrid.appendChild(a);
         });
 
-        /* ---------- SCRAMBLE HERO NAME ---------- */
-        const scramble = (el, { speed = 30 } = {}) => {
-            const text = el.textContent;
-            el.textContent = '';
-            const glyphs = '!<>-_\\/[]{}—=+*^?#_0123456789';
-            let frame = 0;
-            const total = text.length * 6 + 20;
-            const t = setInterval(() => {
-                let out = '';
-                for (let i = 0; i < text.length; i++) {
-                    const settle = (total / text.length) * (i + 1) - 8;
-                    out += frame >= settle ? text[i] : glyphs[(Math.random() * glyphs.length) | 0];
-                }
-                el.textContent = out;
-                if (++frame >= total) { clearInterval(t); el.textContent = text; }
-            }, speed);
-        };
-        scramble(document.getElementById('name'));
+        /* ---------- SPLIT-FLAP HERO NAME ---------- */
+        const heroName = document.getElementById('name');
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const FLAP_GLYPHS = 'S31ZUR3-_/<>[]{}0123456789';
+        const flapTimeouts = new WeakMap();
 
-        /* ---------- INTERACTIVE GRID BACKGROUND (canvas) ---------- */
-        const SIZE = 40, TRAIL = 5, GLOW = 18, IDLE_CNT = 6, IDLE_SPEED = 0.08;
-        const GRID_COLOR = 'rgba(38,38,45,0.6)';
-        const GLOW_COLOR = 'rgba(249,168,212,0.6)';
+        const buildSplitFlap = (el) => {
+            const text = el.dataset.text || el.textContent.trim();
+            el.dataset.text = text;
+            el.setAttribute('aria-label', text);
+            el.innerHTML = '';
+
+            text.split('').forEach((char, index) => {
+                const tile = document.createElement('span');
+                tile.className = 'flap-char';
+                tile.dataset.current = char;
+                tile.dataset.index = index;
+                tile.setAttribute('aria-hidden', 'true');
+
+                const inner = document.createElement('span');
+                inner.className = 'flap-inner';
+
+                const front = document.createElement('span');
+                front.className = 'flap-face front';
+                front.textContent = char;
+
+                const back = document.createElement('span');
+                back.className = 'flap-face back';
+                back.textContent = char;
+
+                inner.append(front, back);
+                tile.appendChild(inner);
+                el.appendChild(tile);
+            });
+        };
+
+        const clearFlapTimers = (el) => {
+            (flapTimeouts.get(el) || []).forEach(clearTimeout);
+            flapTimeouts.set(el, []);
+        };
+
+        const queueFlapTimer = (el, fn, delay) => {
+            const id = setTimeout(fn, delay);
+            flapTimeouts.set(el, [...(flapTimeouts.get(el) || []), id]);
+            return id;
+        };
+
+        const flipTileTo = (el, tile, nextChar) => {
+            const front = tile.querySelector('.front');
+            const back = tile.querySelector('.back');
+            if (front.textContent === nextChar) return;
+
+            back.textContent = nextChar;
+            tile.classList.remove('is-flipping');
+            void tile.offsetWidth;
+            tile.classList.add('is-flipping');
+
+            queueFlapTimer(el, () => {
+                front.textContent = nextChar;
+                back.textContent = nextChar;
+                tile.classList.remove('is-flipping');
+            }, 180);
+        };
+
+        const runSplitFlap = (el, { loops = 4, baseDelay = 60 } = {}) => {
+            if (reduceMotion.matches) return;
+
+            clearFlapTimers(el);
+            const text = el.dataset.text;
+            const tiles = [...el.querySelectorAll('.flap-char')];
+            tiles.forEach((tile, index) => {
+                const target = text[index];
+                let tick = 0;
+
+                const cycle = () => {
+                    if (tick < loops) {
+                        flipTileTo(el, tile, FLAP_GLYPHS[(Math.random() * FLAP_GLYPHS.length) | 0]);
+                        tick += 1;
+                        queueFlapTimer(el, cycle, 58);
+                    } else {
+                        flipTileTo(el, tile, target);
+                    }
+                };
+
+                queueFlapTimer(el, cycle, index * baseDelay);
+            });
+        };
+
+        buildSplitFlap(heroName);
+        runSplitFlap(heroName, { loops: 5, baseDelay: 48 });
+
+        if (!reduceMotion.matches) {
+            heroName.addEventListener('pointerenter', () => runSplitFlap(heroName, { loops: 3, baseDelay: 32 }));
+            heroName.addEventListener('focus', () => runSplitFlap(heroName, { loops: 3, baseDelay: 32 }));
+        }
+
+        /* ---------- CURSOR GRID BACKGROUND ---------- */
         const canvas = document.getElementById('lgrid');
         const ctx = canvas.getContext('2d');
-        let W, H;
-        const trail = [];
-        const idlePos = [], idleTgt = [];
-        let mouseActive = true, lastMouse = 0;
+        const reduceGridMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const GRID_SIZE = 34;
+        const GRID_GAP = 12;
+        const GRID_DOT = 2;
+        const GRID_RADIUS = 150;
+        const GRID_FALLOFF = 1.8;
+        const GRID_BASE = 'rgba(56, 56, 64, 0.42)';
+        const GRID_HOT = [249, 168, 212];
+        const GRID_COOL = [56, 189, 248];
+        const PULSE_SPEED = 420;
+        let W = 0, H = 0, COLS = 0, ROWS = 0;
+        let gridPointer = { x: -9999, y: -9999, active: 0, target: 0 };
+        const gridPulses = [];
+
+        const clamp01 = (value) => Math.max(0, Math.min(1, value));
+        const mix = (a, b, t) => a + ((b - a) * t);
+        const snap = (x, y) => ({
+            x: Math.round(x / GRID_SIZE) * GRID_SIZE,
+            y: Math.round(y / GRID_SIZE) * GRID_SIZE
+        });
 
         const resize = () => {
             W = canvas.width = innerWidth;
             H = canvas.height = innerHeight;
+            COLS = Math.ceil(W / GRID_SIZE) + 1;
+            ROWS = Math.ceil(H / GRID_SIZE) + 1;
         };
+
+        const addPulse = (x, y) => {
+            const p = snap(x, y);
+            gridPulses.push({ x: p.x, y: p.y, born: performance.now() });
+            if (gridPulses.length > 8) gridPulses.shift();
+        };
+
+        const setPointer = (x, y, active = 1) => {
+            gridPointer.x = x;
+            gridPointer.y = y;
+            gridPointer.target = active;
+        };
+
+        addEventListener('pointermove', (event) => {
+            setPointer(event.clientX, event.clientY, 1);
+        }, { passive: true });
+
+        addEventListener('pointerleave', () => {
+            gridPointer.target = 0;
+        });
+
+        addEventListener('pointerdown', (event) => {
+            setPointer(event.clientX, event.clientY, 1);
+            addPulse(event.clientX, event.clientY);
+        }, { passive: true });
+
+        addEventListener('touchstart', (event) => {
+            const touch = event.touches[0];
+            if (!touch) return;
+            setPointer(touch.clientX, touch.clientY, 1);
+            addPulse(touch.clientX, touch.clientY);
+        }, { passive: true });
+
         resize();
         addEventListener('resize', resize);
-        canvas.style.backgroundImage =
-            `linear-gradient(to right, ${GRID_COLOR} 1px, transparent 1px),` +
-            `linear-gradient(to bottom, ${GRID_COLOR} 1px, transparent 1px)`;
-        canvas.style.backgroundSize = `${SIZE}px ${SIZE}px`;
 
-        const snap = (x, y) => ({
-            x: Math.floor(x / SIZE),
-            y: Math.floor(y / SIZE)
-        });
-
-        addEventListener('mousemove', e => {
-            if (e.clientX < 0 || e.clientY < 0 || e.clientX > W || e.clientY > H) return;
-            mouseActive = true;
-            lastMouse = Date.now();
-            const c = snap(e.clientX, e.clientY);
-            const last = trail[0];
-            if (!last || last.x !== c.x || last.y !== c.y) {
-                trail.unshift(c);
-                if (trail.length > TRAIL) trail.pop();
-            }
-        });
-
-        (function initIdle() {
-            for (let i = 0; i < IDLE_CNT; i++) {
-                const p = {
-                    x: Math.floor(Math.random() * (W / SIZE)),
-                    y: Math.floor(Math.random() * (H / SIZE))
-                };
-                idlePos.push({ ...p });
-                idleTgt.push(p);
-            }
-        })();
-
-        (function draw() {
+        (function drawGrid(now = performance.now()) {
             ctx.clearRect(0, 0, W, H);
+            gridPointer.active += (gridPointer.target - gridPointer.active) * (reduceGridMotion.matches ? 0.24 : 0.14);
 
-            if (Date.now() - lastMouse > 2000) {
-                mouseActive = false;
-                idlePos.forEach((pos, i) => {
-                    const tgt = idleTgt[i];
-                    const dx = tgt.x - pos.x, dy = tgt.y - pos.y;
-                    if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) {
-                        idleTgt[i] = {
-                            x: Math.floor(Math.random() * (W / SIZE)),
-                            y: Math.floor(Math.random() * (H / SIZE))
-                        };
-                    } else {
-                        pos.x += dx * IDLE_SPEED;
-                        pos.y += dy * IDLE_SPEED;
+            for (let row = 0; row < ROWS; row++) {
+                const y = row * GRID_SIZE;
+                for (let col = 0; col < COLS; col++) {
+                    const x = col * GRID_SIZE;
+                    let influence = 0;
+                    let pulseGlow = 0;
+
+                    if (gridPointer.active > 0.01) {
+                        const dx = x - gridPointer.x;
+                        const dy = y - gridPointer.y;
+                        const dist = Math.hypot(dx, dy);
+                        const normalized = clamp01(1 - (dist / GRID_RADIUS));
+                        influence = Math.pow(normalized, GRID_FALLOFF) * gridPointer.active;
                     }
-                    const c = { x: Math.round(pos.x), y: Math.round(pos.y) };
-                    const last = trail[0];
-                    if (!last || last.x !== c.x || last.y !== c.y) {
-                        trail.unshift(c);
-                        if (trail.length > TRAIL * IDLE_CNT) trail.pop();
+
+                    for (let i = gridPulses.length - 1; i >= 0; i--) {
+                        const pulse = gridPulses[i];
+                        const age = now - pulse.born;
+                        if (age > PULSE_SPEED * 3.2) {
+                            gridPulses.splice(i, 1);
+                            continue;
+                        }
+
+                        const progress = age / PULSE_SPEED;
+                        const waveRadius = progress * GRID_RADIUS * 1.5;
+                        const dist = Math.hypot(x - pulse.x, y - pulse.y);
+                        const band = 26 + (progress * 16);
+                        const wave = Math.max(0, 1 - Math.abs(dist - waveRadius) / band);
+                        pulseGlow = Math.max(pulseGlow, wave * (1 - clamp01(progress / 3.2)));
                     }
-                });
+
+                    const glow = Math.max(influence, pulseGlow);
+                    const dotSize = GRID_DOT + (glow * GRID_GAP * 0.36);
+                    const hotMix = glow * 0.85;
+                    const r = Math.round(mix(GRID_COOL[0], GRID_HOT[0], hotMix));
+                    const g = Math.round(mix(GRID_COOL[1], GRID_HOT[1], hotMix));
+                    const b = Math.round(mix(GRID_COOL[2], GRID_HOT[2], hotMix));
+
+                    ctx.beginPath();
+                    ctx.fillStyle = glow > 0.01 ? `rgba(${r}, ${g}, ${b}, ${0.12 + (glow * 0.7)})` : GRID_BASE;
+                    ctx.shadowBlur = glow > 0.01 ? 10 + (glow * 18) : 0;
+                    ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${glow * 0.55})`;
+                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
-            trail.forEach((cell, idx) => {
-                const alpha = 1 - idx * (1 / (TRAIL + 1));
-                const color = GLOW_COLOR.replace(/([\d.]+)\)$/, `${alpha})`);
-                ctx.fillStyle = color;
-                ctx.shadowColor = color;
-                ctx.shadowBlur = GLOW;
-                ctx.fillRect(cell.x * SIZE, cell.y * SIZE, SIZE, SIZE);
-            });
-
-            requestAnimationFrame(draw);
-        })();
-
-        /* ---------- HANGING ID CARD PENDULUM ---------- */
-        (function () {
-            const ROPE = 130, DAMPING = 0.9, GRAVITY = 3000;
-            const swing = document.querySelector('.id-swing');
-            const phys = { angle: 0, vel: 0 };
-            let raf = null, prevTime = null, prevAngle = 0;
-            let dragging = false, dragStartX = 0, dragAngle0 = 0;
-
-            const tick = now => {
-                if (prevTime === null) prevTime = now;
-                const dt = Math.min((now - prevTime) / 1000, 0.05);
-                prevTime = now;
-                const L = ROPE + 100;
-                if (!dragging) {
-                    const torque = -(GRAVITY / L) * Math.sin(phys.angle) - DAMPING * phys.vel;
-                    phys.vel += torque * dt;
-                    phys.angle += phys.vel * dt;
-                    swing.style.transform = `rotate(${phys.angle * (180 / Math.PI)}deg)`;
-                    if (Math.abs(phys.angle) > 0.001 || Math.abs(phys.vel) > 0.001) {
-                        raf = requestAnimationFrame(tick);
-                    } else {
-                        phys.angle = 0; phys.vel = 0;
-                        swing.style.transform = 'rotate(0deg)';
-                    }
-                } else {
-                    if (dt > 0) phys.vel = (phys.angle - prevAngle) / dt;
-                    prevAngle = phys.angle;
-                    raf = requestAnimationFrame(tick);
-                }
-            };
-            const startPhysics = () => {
-                if (raf) cancelAnimationFrame(raf);
-                prevTime = null;
-                raf = requestAnimationFrame(tick);
-            };
-
-            swing.addEventListener('pointerdown', e => {
-                swing.setPointerCapture(e.pointerId);
-                dragging = true;
-                dragStartX = e.clientX;
-                dragAngle0 = phys.angle;
-                prevAngle = phys.angle;
-                if (raf) cancelAnimationFrame(raf);
-                prevTime = null;
-                raf = requestAnimationFrame(tick);
-            });
-            swing.addEventListener('pointermove', e => {
-                if (!dragging) return;
-                const L = ROPE + 100;
-                const newAngle = dragAngle0 - (e.clientX - dragStartX) / L;
-                phys.angle = Math.max(-1.4, Math.min(1.4, newAngle));
-                swing.style.transform = `rotate(${phys.angle * (180 / Math.PI)}deg)`;
-            });
-            const endDrag = e => {
-                if (!dragging) return;
-                dragging = false;
-            };
-            swing.addEventListener('pointerup', endDrag);
-            swing.addEventListener('pointercancel', endDrag);
-            swing.addEventListener('click', () => {
-                if (Math.abs(phys.vel) < 0.1 && Math.abs(phys.angle) < 0.05) {
-                    phys.vel = 4.0;
-                    startPhysics();
-                }
-            });
+            ctx.shadowBlur = 0;
+            requestAnimationFrame(drawGrid);
         })();
 
         document.getElementById('year').textContent = new Date().getFullYear();
