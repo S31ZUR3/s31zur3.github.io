@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>blog :: s31zur3</title>
+    <meta name="description" content="Notes, techniques and CTF post-mortems.">
+    <link rel="icon" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="bg"></canvas>
+
+    <header class="container">
+        <a class="logo" href="./">s31zur3<span class="dot">::</span>void</a>
+        <nav>
+            <a href="./">home</a>
+            <a href="profile">skills</a>
+            <a href="archive">writeups</a>
+            <a href="#" class="active">blog</a>
+        </nav>
+    </header>
+
+    <main class="container" id="view"></main>
+
+    <footer>
+        <p><a href="./">← back to root</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/animejs/dist/bundles/anime.umd.min.js"></script>
+    <script src="blog-data.js"></script>
+    <script src="bg.js"></script>
+    <script>
+        const view = document.getElementById('view');
+        const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const escAttr = s => esc(s).replace(/"/g, '&quot;');
+
+        const { animate, stagger } = anime;
+
+        const fmtDate = iso => {
+            const d = new Date(iso + 'T00:00:00');
+            if (isNaN(d)) return iso;
+            return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        };
+
+        const allTags = () => {
+            const set = new Set();
+            blogPosts.forEach(p => (p.tags || []).forEach(t => set.add(t)));
+            return [...set].sort();
+        };
+
+        function renderList(query = '', tag = '') {
+            const q = query.trim().toLowerCase();
+            let posts = blogPosts.filter(p => {
+                const hay = [p.title, p.summary, p.category, (p.tags || []).join(' ')].join(' ').toLowerCase();
+                if (q && !hay.includes(q)) return false;
+                if (tag && !(p.tags || []).includes(tag)) return false;
+                return true;
+            });
+
+            if (!blogPosts.length) {
+                view.innerHTML = `
+                    <div class="sec-head"><span class="num">*</span> blog</div>
+                    <div class="empty">// no posts yet. write one and run <code>python3 generate_blog.py</code>.</div>`;
+                return;
+            }
+
+            view.innerHTML = `
+                <div class="sec-head"><span class="num">*</span> blog</div>
+                <div class="blog-controls">
+                    <input type="text" id="search" placeholder="search posts, tags, categories..." value="${esc(query)}">
+                    <a class="btn ghost" href="write">+ new post</a>
+                </div>
+                ${allTags().length ? `<div class="chips" id="tagbar" style="margin-bottom:20px;">
+                    <span class="chip ${tag ? '' : 'active'}" data-tag="">all</span>
+                    ${allTags().map(t => `<span class="chip ${t === tag ? 'active' : ''}" data-tag="${esc(t)}">#${esc(t)}</span>`).join('')}
+                </div>` : ''}
+                ${posts.length ? `<div class="blog-grid">
+                    ${posts.map(p => {
+                        const hay = escAttr([p.title, p.summary, p.category, (p.tags || []).join(' ')].join(' ').toLowerCase());
+                        return `
+                        <div class="blog-card" data-search="${hay}" onclick="go('post/${encodeURIComponent(p.slug)}')">
+                            <div class="b-meta">
+                                <span class="b-cat">${esc(p.category)}</span>
+                                <span>${esc(fmtDate(p.date))}</span>
+                                <span>· ${p.readingTime} min read</span>
+                            </div>
+                            <div class="b-title">${esc(p.title)}</div>
+                            ${p.summary ? `<div class="b-sum">${esc(p.summary)}</div>` : ''}
+                            ${(p.tags || []).length ? `<div class="b-tags">${p.tags.map(t => `<span class="blog-tag">#${esc(t)}</span>`).join('')}</div>` : ''}
+                        </div>`;
+                    }).join('')}
+                </div>` : `<div class="empty">// no posts match.</div>`}
+                <div class="empty" id="no-match" style="display:none;">// no posts match.</div>
+            `;
+
+            const search = document.getElementById('search');
+            search.addEventListener('input', () => {
+                const q = search.value.trim().toLowerCase();
+                let visible = 0;
+                view.querySelectorAll('.blog-card').forEach(c => {
+                    const show = !q || (c.dataset.search || '').includes(q);
+                    c.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+                const none = document.getElementById('no-match');
+                if (none) none.style.display = visible ? 'none' : '';
+            });
+
+            const tagbar = document.getElementById('tagbar');
+            if (tagbar) tagbar.addEventListener('click', e => {
+                const chip = e.target.closest('.chip'); if (!chip) return;
+                renderList(search.value, chip.dataset.tag);
+            });
+
+            animate(view.querySelectorAll('.blog-card'), {
+                y: [16, 0], opacity: [0, 1], duration: 520, ease: 'outExpo',
+                delay: stagger(45, { from: 'first' })
+            });
+        }
+
+        function renderPost(encodedSlug) {
+            const slug = decodeURIComponent(encodedSlug);
+            const idx = blogPosts.findIndex(p => p.slug === slug);
+            if (idx === -1) return renderList();
+            const p = blogPosts[idx];
+            const prev = blogPosts[idx - 1];
+            const next = blogPosts[idx + 1];
+
+            view.innerHTML = `
+                <div class="bar">
+                    <span class="back-btn" onclick="go('', true)">← blog</span>
+                </div>
+                <article style="margin-top:14px;">
+                    <div class="b-meta">
+                        <span class="b-cat">${esc(p.category)}</span>
+                        <span>${esc(fmtDate(p.date))}</span>
+                        <span>· ${p.readingTime} min read</span>
+                        ${p.difficulty ? `<span>· ${esc(p.difficulty)}</span>` : ''}
+                    </div>
+                    <h1 class="post-title">${esc(p.title)}</h1>
+                    <div class="chips" style="margin:6px 0 18px;">
+                        ${(p.tags || []).map(t => `<span class="chip" onclick="go('', true)">#${esc(t)}</span>`).join('')}
+                    </div>
+                    <div class="card writeup" style="padding:26px;">${p.html}</div>
+                    <div class="skills" style="margin-top:20px;justify-content:space-between;">
+                        ${prev ? `<a class="pill" onclick="go('post/${encodeURIComponent(prev.slug)}')">← ${esc(prev.title)}</a>` : '<span></span>'}
+                        ${next ? `<a class="pill" onclick="go('post/${encodeURIComponent(next.slug)}')">${esc(next.title)} →</a>` : '<span></span>'}
+                    </div>
+                </article>
+            `;
+
+            animate(view.children, {
+                y: [18, 0], opacity: [0, 1], duration: 520, ease: 'outExpo',
+                delay: stagger(60, { from: 'first' })
+            });
+        }
+
+        /* ----- router ----- */
+        let currentRoute = '';
+        function go(route, force) {
+            route = route || '';
+            if (route === currentRoute && !force) return;
+            currentRoute = route;
+            window.location.hash = route;
+        }
+
+        function handleRoute() {
+            const hash = location.hash.replace(/^#/, '');
+            const parts = hash.split('/').map(decodeURIComponent);
+            if (parts[0] === 'post' && parts[1]) {
+                renderPost(parts[1]);
+            } else {
+                renderList();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        addEventListener('hashchange', handleRoute);
+        addEventListener('load', handleRoute);
+
+        matrixRain('010blog01s31zur301{}01', 0.2);
+        window.go = go;
+    </script>
+</body>
+</html>

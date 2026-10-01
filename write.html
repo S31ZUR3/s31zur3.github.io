@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>write :: s31zur3</title>
+    <meta name="description" content="Compose a blog post and export it as markdown.">
+    <link rel="icon" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="container">
+        <a class="logo" href="./">s31zur3<span class="dot">::</span>void</a>
+        <nav>
+            <a href="./">home</a>
+            <a href="profile">skills</a>
+            <a href="archive">writeups</a>
+            <a href="blog">blog</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="sec-head"><span class="num">+</span> new post</div>
+
+        <div class="editor-grid">
+            <!-- editor -->
+            <div>
+                <div class="field">
+                    <label for="f-title">Title</label>
+                    <input id="f-title" type="text" placeholder="Defeating PIE with a leak">
+                </div>
+                <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <label for="f-date">Date</label>
+                        <input id="f-date" type="date">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <label for="f-difficulty">Difficulty</label>
+                        <select id="f-difficulty">
+                            <option value="">—</option>
+                            <option>Easy</option>
+                            <option>Medium</option>
+                            <option>Hard</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <label for="f-category">Category</label>
+                        <select id="f-category">
+                            <option>Miscellaneous</option>
+                            <option>Reverse Engineering</option>
+                            <option>Binary Exploitation</option>
+                            <option>Web Exploitation</option>
+                            <option>Cryptography</option>
+                            <option>Forensics</option>
+                            <option>OSINT</option>
+                            <option>Blockchain</option>
+                            <option>Mobile</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <label for="f-tags">Tags (comma separated)</label>
+                        <input id="f-tags" type="text" placeholder="pwn, gdb, rop">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="f-summary">Summary</label>
+                    <input id="f-summary" type="text" placeholder="One line shown on the blog card.">
+                </div>
+                <div class="field">
+                    <label for="f-body">Body (markdown)</label>
+                    <textarea id="f-body" spellcheck="false" placeholder="# Heading
+
+Write your post here. Use **bold**, \`inline code\`, lists, links and fenced code blocks:
+
+\`\`\`bash
+file ./chall
+\`\`\`"></textarea>
+                </div>
+                <div class="editor-actions">
+                    <button class="btn" id="dl">↓ download .md</button>
+                    <button class="btn ghost" id="copy">copy markdown</button>
+                    <button class="btn ghost" id="clear">clear</button>
+                </div>
+                <div class="editor-hint">
+                    Saves a draft in this browser as you type. Download the <code>.md</code>,
+                    drop it in <code>blog/posts/</code>, run <code>python3 generate_blog.py</code>,
+                    then commit &amp; push.
+                </div>
+            </div>
+
+            <!-- preview -->
+            <div>
+                <div class="field"><label>Preview</label></div>
+                <div class="preview-pane card writeup" id="preview"></div>
+                <div class="editor-hint">filename: <code id="filename">post.md</code></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p><a href="blog">← back to blog</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const $ = id => document.getElementById(id);
+        const fields = ['f-title', 'f-date', 'f-category', 'f-tags', 'f-difficulty', 'f-summary', 'f-body'];
+        const DRAFT_KEY = 's31zur3-blog-draft';
+
+        const slugify = s => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'post';
+
+        function buildMarkdown() {
+            const title = $('f-title').value.trim();
+            const tags = $('f-tags').value.trim();
+            const lines = ['---'];
+            lines.push(`title: ${title || 'Untitled'}`);
+            lines.push(`date: ${$('f-date').value || new Date().toISOString().slice(0, 10)}`);
+            lines.push(`category: ${$('f-category').value}`);
+            if (tags) lines.push(`tags: ${tags}`);
+            if ($('f-difficulty').value) lines.push(`difficulty: ${$('f-difficulty').value}`);
+            if ($('f-summary').value.trim()) lines.push(`summary: ${$('f-summary').value.trim()}`);
+            lines.push('---', '', $('f-body').value);
+            return lines.join('\n');
+        }
+
+        function update() {
+            const title = $('f-title').value.trim();
+            $('filename').textContent = slugify(title) + '.md';
+            const body = $('f-body').value;
+            $('preview').innerHTML = marked.parse(body || '*Nothing to preview yet.*');
+            try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readForm())); } catch (e) {}
+        }
+
+        function readForm() {
+            const o = {};
+            fields.forEach(id => o[id] = $(id).value);
+            return o;
+        }
+
+        function writeForm(o) {
+            fields.forEach(id => { if (o[id] != null) $(id).value = o[id]; });
+        }
+
+        function download() {
+            const title = $('f-title').value.trim() || 'post';
+            const blob = new Blob([buildMarkdown()], { type: 'text/markdown;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = slugify(title) + '.md';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(a.href);
+        }
+
+        async function copy() {
+            const btn = $('copy');
+            try {
+                await navigator.clipboard.writeText(buildMarkdown());
+                btn.textContent = 'copied!';
+            } catch (e) {
+                btn.textContent = 'copy failed';
+            }
+            setTimeout(() => btn.textContent = 'copy markdown', 1200);
+        }
+
+        /* ----- init ----- */
+        $('f-date').value = new Date().toISOString().slice(0, 10);
+        try {
+            const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+            if (saved) writeForm(saved);
+        } catch (e) {}
+
+        fields.forEach(id => $(id).addEventListener('input', update));
+        $('dl').addEventListener('click', download);
+        $('copy').addEventListener('click', copy);
+        $('clear').addEventListener('click', () => {
+            if (!confirm('Clear the current draft?')) return;
+            fields.forEach(id => { $(id).value = ''; });
+            $('f-date').value = new Date().toISOString().slice(0, 10);
+            $('f-category').value = 'Miscellaneous';
+            try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+            update();
+        });
+
+        update();
+    </script>
+</body>
+</html>
