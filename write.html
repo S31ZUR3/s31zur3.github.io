@@ -19,22 +19,23 @@
         </nav>
     </header>
 
-    <main class="container">
+    <main class="container wide">
         <div class="sec-head"><span class="num">+</span> new post</div>
 
         <div class="editor-grid">
             <!-- editor -->
-            <div>
+            <div class="editor-col">
                 <div class="field">
                     <label for="f-title">Title</label>
                     <input id="f-title" type="text" placeholder="Defeating PIE with a leak">
                 </div>
-                <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <div style="display:flex;flex-direction:column;gap:6px;">
+
+                <div class="field-row">
+                    <div class="field">
                         <label for="f-date">Date</label>
                         <input id="f-date" type="date">
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div class="field">
                         <label for="f-difficulty">Difficulty</label>
                         <select id="f-difficulty">
                             <option value="">—</option>
@@ -44,8 +45,9 @@
                         </select>
                     </div>
                 </div>
-                <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <div style="display:flex;flex-direction:column;gap:6px;">
+
+                <div class="field-row">
+                    <div class="field">
                         <label for="f-category">Category</label>
                         <select id="f-category">
                             <option>Miscellaneous</option>
@@ -59,17 +61,19 @@
                             <option>Mobile</option>
                         </select>
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:6px;">
-                        <label for="f-tags">Tags (comma separated)</label>
+                    <div class="field">
+                        <label for="f-tags">Tags <span class="hint">comma separated</span></label>
                         <input id="f-tags" type="text" placeholder="pwn, gdb, rop">
                     </div>
                 </div>
+
                 <div class="field">
                     <label for="f-summary">Summary</label>
                     <input id="f-summary" type="text" placeholder="One line shown on the blog card.">
                 </div>
+
                 <div class="field">
-                    <label for="f-body">Body (markdown)</label>
+                    <label for="f-body">Body <span class="hint">markdown</span></label>
                     <textarea id="f-body" spellcheck="false" placeholder="# Heading
 
 Write your post here. Use **bold**, \`inline code\`, lists, links and fenced code blocks:
@@ -78,6 +82,7 @@ Write your post here. Use **bold**, \`inline code\`, lists, links and fenced cod
 file ./chall
 \`\`\`"></textarea>
                 </div>
+
                 <div class="editor-actions">
                     <button class="btn" id="dl">↓ download .md</button>
                     <button class="btn ghost" id="copy">copy markdown</button>
@@ -91,10 +96,9 @@ file ./chall
             </div>
 
             <!-- preview -->
-            <div>
-                <div class="field"><label>Preview</label></div>
+            <div class="editor-col">
+                <div class="field-label">Preview <span class="hint" id="filename">post.md</span></div>
                 <div class="preview-pane card writeup" id="preview"></div>
-                <div class="editor-hint">filename: <code id="filename">post.md</code></div>
             </div>
         </div>
     </main>
