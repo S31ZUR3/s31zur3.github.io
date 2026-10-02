@@ -25,13 +25,8 @@ A flag you get from a prompt doesn't stick. The things I actually remember are t
 
 ## What I'll cover
 
-Starting from the easy end and working across categories:
-
 1. **Reverse engineering** — reading disassembly by hand again.
 2. **Binary exploitation** — the classic stack, then modern mitigations.
-3. **Web** — doing it manually before reaching for a scanner.
-4. **Crypto** — recognising the pattern, not memorising the attack.
-5. **Forensics** — getting comfortable with the raw data.
 
 ## What each post will have
 
